@@ -56,17 +56,35 @@ export const constantRoutes = [
   },
 
   {
-    path: '/example',
+    path: '/threeJS',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
+    redirect: '/threeJS/geometries',
+    name: 'threeJS',
+    meta: { title: 'threeJS', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'geometries',
+        name: '几何体',
+        component: () => import('@/views/threeJS/09-geometries/index'),
+        meta: { title: '几何体' }
+      },
+      {
+        path: 'debug-ui',
+        name: '调试面板',
+        component: () => import('@/views/threeJS/10-debug-ui/index'),
+        meta: { title: '调试面板' }
+      },
+      {
+        path: 'textures',
+        name: '纹理',
+        component: () => import('@/views/threeJS/11-textures/index'),
+        meta: { title: '纹理' }
+      },
+      {
+        path: 'material',
+        name: '材质',
+        component: () => import('@/views/threeJS/12-materials/index'),
+        meta: { title: '材质' }
       },
       {
         path: 'tree',

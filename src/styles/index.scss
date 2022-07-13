@@ -63,3 +63,11 @@ div:focus {
 .app-container {
   padding: 20px;
 }
+
+// threeJS
+.three-box {
+  height: calc(100vh - 50px);
+  .webgl {
+    outline: none;
+  }
+}
