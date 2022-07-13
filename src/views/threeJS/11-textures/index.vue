@@ -166,6 +166,9 @@ export default {
       }
     },
     createObject(texture) {
+      const params = {
+        map: 'colorTexture'
+      }
       const geometry = new THREE.BoxBufferGeometry(1, 1, 1)
       const material = new THREE.MeshBasicMaterial({
         map: texture
@@ -173,7 +176,7 @@ export default {
       const mesh = new THREE.Mesh(geometry, material)
       this.scene.add(mesh)
       this.gui
-        .add(material, 'map', {
+        .add(params, 'map', {
           colorTexture: 'colorTexture',
           checkerboard1024Texture: 'checkerboard1024Texture',
           checkerboard8Texture: 'checkerboard8Texture',
@@ -181,7 +184,7 @@ export default {
         })
         .name('纹理贴图')
         .onFinishChange(() => {
-          material.map = this.texturesMap[material.map]
+          material.map = this.texturesMap[params.map]
         })
     },
     initCamera() {

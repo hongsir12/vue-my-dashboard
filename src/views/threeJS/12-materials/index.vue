@@ -21,8 +21,25 @@ export default {
         width: 0,
         height: 0
       },
-      texturesMap: {},
-      materialsMap: {}
+      texturesMap: {}, // 纹理贴图集合
+      material: null, // 当前网格材质
+      materialsMap: {}, // 材质集合
+      lights: {}, // 灯光集合
+      obj: {}, // 对象集合
+      params: {
+        // 调试面板参数对象
+        color: '#ffffff',
+        material: 'meshBasicMaterial',
+        loadEnvMap: false
+      }
+    }
+  },
+  watch: {
+    'params.material': {
+      handler(newVal, oldVal) {
+        this.gui.removeFolder(this.gui.__folders[oldVal])
+      },
+      deep: true
     }
   },
   beforeMount() {},
@@ -34,10 +51,9 @@ export default {
     this.clock = new THREE.Clock()
     this.initGui()
     this.loadTexture()
-    this.createMaterials()
+    this.initMaterials()
+    this.settingMaterial('meshBasicMaterial')
     this.createObject(this.texturesMap.environmentMapTexture)
-    // Light
-    this.initLight()
     // Camera
     this.initCamera()
     // Controls
@@ -122,7 +138,7 @@ export default {
         environmentMapTexture
       }
     },
-    createMaterials() {
+    initMaterials() {
       // 基础网格材质MeshBasicMaterial
       const meshBasicMaterial = new THREE.MeshBasicMaterial()
       // 法线网格材质MeshNormalMaterial
@@ -150,80 +166,137 @@ export default {
         meshStandardMaterial
       }
     },
+    // 设置网格材质
+    settingMaterial(material) {
+      if (this.params.loadEnvMap) {
+        this.params.loadEnvMap = false
+      }
+      this.material = this.materialsMap[material]
+      const folder = this.gui.addFolder(material)
+      if (material === 'meshBasicMaterial') {
+        this.material.map = this.texturesMap.doorColorTexture
+        this.material.color.set(this.params.color)
+        folder
+          .addColor(this.params, 'color')
+          .name('颜色')
+          .onChange(() => {
+            this.material.color.set(this.params.color)
+          })
+      }
+      if (material === 'meshNormalMaterial') {
+        this.material.flatShading = true
+        folder.add(this.material, 'flatShading')
+      }
+      if (material === 'meshMatcapMaterial') {
+        this.material.matcap = this.texturesMap.matcapsTexture
+      }
+      if (material === 'meshDepthMaterial') {
+        console.log(
+          'meshDepthMaterial:如果几何体接近摄影机的“near”值，它将简单地将几何体着色为白色，如果几何体越接近摄影机的“far”值，则将几何体着色为黑色。'
+        )
+      }
+      if (material === 'meshLambertMaterial') {
+        console.log('meshLambertMaterial该材质对光线有反应')
+        this.removeLight(this.scene)
+        // Light
+        this.initLight()
+        this.addLightFolder(folder)
+      }
+      if (material === 'meshPhongMaterial') {
+        this.removeLight(this.scene)
+        this.initLight()
+        this.addLightFolder(folder)
+        // 通过shininess属性控制光线反射高亮程度，数值越高越闪亮
+        // 并通过specular属性控制反射的颜色
+        this.material.shininess = 100
+        folder.add(this.material, 'shininess').min(50).max(500).step(1)
+        this.material.specular = new THREE.Color(0xff0000)
+        this.params.color = '#ff0000'
+        folder
+          .addColor(this.params, 'color')
+          .name('颜色')
+          .onChange(() => {
+            this.material.specular.set(this.params.color)
+          })
+      }
+      if (material === 'meshToonMaterial') {
+        this.removeLight(this.scene)
+        this.initLight()
+        this.addLightFolder(folder)
+        this.material.gradientMap = this.texturesMap.gradientTexture
+        this.texturesMap.gradientTexture.minFilter = THREE.NearestFilter
+        this.texturesMap.gradientTexture.magFilter = THREE.NearestFilter
+        // 因为我们的渐变纹理贴图的缩小滤镜minFilter属性使用了NearestFilter
+        // 所以我们可以为该纹理停用mipmapping，使得GPU不再处理其mip映射
+        this.texturesMap.gradientTexture.generateMipmaps = false
+      }
+      if (material === 'meshStandardMaterial') {
+        this.removeLight(this.scene)
+        this.initLight()
+        this.addLightFolder(folder)
+        this.material.map = this.texturesMap.doorColorTexture
+        this.material.aoMap = this.texturesMap.doorAmbientOcclusionTexture
+        this.material.aoMapIntensity = 1
+        this.material.displacementMap = this.texturesMap.doorHeightTexture
+        this.material.displacementScale = 0.05
+        this.material.metalnessMap = this.texturesMap.doorMetalnessTexture
+        this.material.roughnessMap = this.texturesMap.doorRoughnessTexture
+        this.material.normalMap = this.texturesMap.doorNormalTexture
+        this.material.normalScale.set(0.5, 0.5)
+        this.material.alphaMap = this.texturesMap.doorAlphaTexture
+        this.material.transparent = true
+        // this.material.wireframe = true
+        const material = folder.addFolder('材质设置')
+        material.add(this.material, 'metalness').min(0).max(1).step(0.01)
+        material.add(this.material, 'roughness').min(0).max(1).step(0.01)
+        material.add(this.material, 'aoMapIntensity').min(0).step(0.1)
+        folder
+          .add(this.params, 'loadEnvMap')
+          .name('加载环境贴图')
+          .onChange(() => {
+            if (this.params.loadEnvMap) {
+              this.gui.__folders['meshStandardMaterial'].removeFolder(material)
+              const envMaterial = new THREE.MeshStandardMaterial()
+              envMaterial.metalness = 0.7
+              envMaterial.roughness = 0.2
+              envMaterial.envMap = this.texturesMap.environmentMapTexture
+              this.obj.sphere.material = envMaterial
+              this.obj.plane.material = envMaterial
+              this.obj.torus.material = envMaterial
+              const cfolder =
+                this.gui.__folders['meshStandardMaterial'].addFolder('材质设置')
+              cfolder.add(envMaterial, 'metalness').min(0).max(1).step(0.01)
+              cfolder.add(envMaterial, 'roughness').min(0).max(1).step(0.01)
+            } else {
+              this.gui.removeFolder(this.gui.__folders['meshStandardMaterial'])
+              this.settingMaterial('meshStandardMaterial')
+              this.obj.sphere.material = this.material
+              this.obj.plane.material = this.material
+              this.obj.torus.material = this.material
+            }
+          })
+      }
+    },
     createObject(texture) {
-      // 基础网格材质MeshBasicMaterial
-      // const material = new THREE.MeshBasicMaterial()
-      // material.map = doorColorTexture
-      // material.color.set('#ff00ff')
-      // material.color = new THREE.Color('red')
-      // 设置显示线框
-      // material.wireframe = true
-      // 设置透明
-      // material.transparent = true
-      // material.opacity = 0.5
-      // 设置alpha贴图
-      // material.alphaMap = doorAlphaTexture
-      // 设置渲染哪一面
-      // material.side = THREE.FrontSide
-      // material.side = THREE.BackSide
-      // material.side = THREE.DoubleSide
-      // 法线网格材质MeshNormalMaterial
-      // const material = new THREE.MeshNormalMaterial()
-      // material.flatShading = true
-      // 网帽材质(MeshMatcapMaterial)
-      // const material = new THREE.MeshMatcapMaterial()
-      // material.matcap = matcapsTexture
-      // 深度网格材质(MeshDepthMaterial)
-      // const material = new THREE.MeshDepthMaterial()
-      // Lambert网格材质(MeshLambertMaterial)
-      // const material = new THREE.MeshLambertMaterial()
-      // Phong网格材质(MeshPhongMaterial)
-      // const material = new THREE.MeshPhongMaterial()
-      // material.shininess = 100
-      // material.specular = new THREE.Color(0xff0000)
-      // Toon网格材质(MeshToonMaterial)
-      // const material = new THREE.MeshToonMaterial()
-      // material.gradientMap = gradientTexture
-      // gradientTexture.minFilter = THREE.NearestFilter
-      // gradientTexture.magFilter = THREE.NearestFilter
-      // gradientTexture.generateMipmaps = false
-      // 标准网格材质(MeshStandardMaterial)
-      // const material = new THREE.MeshStandardMaterial()
-      // material.map = doorColorTexture
-      // material.aoMap = doorAmbientOcclusionTexture
-      // material.aoMapIntensity = 1
-      // material.displacementMap = doorHeightTexture
-      // material.displacementScale = 0.05
-      // material.metalnessMap = doorMetalnessTexture
-      // material.roughnessMap = doorRoughnessTexture
-      // material.normalMap = doorNormalTexture
-      // material.normalScale.set(0.5,0.5)
-      // material.alphaMap = doorAlphaTexture
-      // material.transparent = true
-      // // material.wireframe = true
-      // gui.add(material,'metalness').min(0).max(1).step(0.01)
-      // gui.add(material,'roughness').min(0).max(1).step(0.01)
-      // gui.add(material,'aoMapIntensity').min(0).step(0.1)
-
       // 环境贴图environment map
-      const material = new THREE.MeshStandardMaterial()
-      material.metalness = 0.7
-      material.roughness = 0.2
-      material.envMap = texture
-      this.gui.add(material, 'metalness').min(0).max(1).step(0.0001)
-      this.gui.add(material, 'roughness').min(0).max(1).step(0.0001)
+      // const material = new THREE.MeshStandardMaterial()
+      // material.metalness = 0.7
+      // material.roughness = 0.2
+      // material.envMap = texture
+      // this.gui.add(material, 'metalness').min(0).max(1).step(0.0001)
+      // this.gui.add(material, 'roughness').min(0).max(1).step(0.0001)
 
       const sphere = new THREE.Mesh(
         new THREE.SphereBufferGeometry(0.5, 64, 64),
-        material
+        this.material
       )
       const plane = new THREE.Mesh(
         new THREE.PlaneBufferGeometry(1, 1, 100, 100),
-        material
+        this.material
       )
       const torus = new THREE.Mesh(
         new THREE.TorusBufferGeometry(0.3, 0.2, 64, 128),
-        material
+        this.material
       )
       sphere.position.x = -1.5
       sphere.geometry.setAttribute(
@@ -243,13 +316,67 @@ export default {
       )
 
       this.scene.add(sphere, plane, torus)
+      this.obj = {
+        sphere,
+        plane,
+        torus
+      }
+      this.gui
+        .add(this.params, 'material', {
+          meshBasicMaterial: 'meshBasicMaterial',
+          meshNormalMaterial: 'meshNormalMaterial',
+          meshMatcapMaterial: 'meshMatcapMaterial',
+          meshDepthMaterial: 'meshDepthMaterial',
+          meshLambertMaterial: 'meshLambertMaterial',
+          meshPhongMaterial: 'meshPhongMaterial',
+          meshToonMaterial: 'meshToonMaterial',
+          meshStandardMaterial: 'meshStandardMaterial'
+        })
+        .name('材质')
+        .onFinishChange(() => {
+          const materialName = this.params.material
+          this.material = this.materialsMap[this.params.material]
+          this.settingMaterial(materialName)
+          sphere.material = this.material
+          plane.material = this.material
+          torus.material = this.material
+        })
     },
+    // 添加光源
     initLight() {
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
       this.scene.add(ambientLight)
       const pointLight = new THREE.PointLight(0xffffff, 0.5)
       pointLight.position.set(2, 3, 4)
       this.scene.add(pointLight)
+      this.lights = {
+        ambientLight,
+        pointLight
+      }
+    },
+    // 移除光源
+    removeLight(scene) {
+      scene.remove(this.lights.pointLight)
+      scene.remove(this.lights.ambientLight)
+    },
+    // 添加光源调试
+    addLightFolder(folder) {
+      const lightFolder = folder.addFolder('点光源')
+      lightFolder
+        .add(this.lights.pointLight.position, 'x')
+        .min(-3)
+        .max(10)
+        .step(0.01)
+      lightFolder
+        .add(this.lights.pointLight.position, 'y')
+        .min(-3)
+        .max(10)
+        .step(0.01)
+      lightFolder
+        .add(this.lights.pointLight.position, 'z')
+        .min(-3)
+        .max(10)
+        .step(0.01)
     },
     initCamera() {
       this.camera = new THREE.PerspectiveCamera(
