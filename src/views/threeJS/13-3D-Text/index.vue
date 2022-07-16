@@ -46,9 +46,9 @@ export default {
     this.gui = initGui()
     this.scene = this.initScene(this.scene)
     this.loadFont()
-    this.camera = this.initCamera(this.camera, this.sizes)
-    this.controls = this.initControls(this.controls, this.camera, this.canvas)
-    this.renderer = this.initRenderer(this.renderer, this.canvas, this.sizes)
+    this.camera = this.initCamera(this.sizes)
+    this.controls = this.initControls(this.camera, this.canvas)
+    this.renderer = this.initRenderer(this.canvas, this.sizes)
     this.axes = initAxes(this.scene)
     listenResize(this.sizes, this.camera, this.renderer)
     this.tick()
@@ -157,8 +157,8 @@ export default {
       sizes.height = this.$refs['three-box'].offsetHeight
       return sizes
     },
-    initCamera(camera, sizes) {
-      camera = new THREE.PerspectiveCamera(
+    initCamera(sizes) {
+      const camera = new THREE.PerspectiveCamera(
         75,
         sizes.width / sizes.height,
         0.1,
@@ -167,15 +167,15 @@ export default {
       camera.position.set(2, 2, 3)
       return camera
     },
-    initControls(controls, camera, canvas) {
-      controls = new OrbitControls(camera, canvas)
+    initControls(camera, canvas) {
+      const controls = new OrbitControls(camera, canvas)
       controls.enableDamping = true // 开启阻尼
       controls.autoRotate = true // 开启自动旋转
       controls.autoRotateSpeed = 0.4 // 自动旋转速度
       return controls
     },
-    initRenderer(renderer, canvas, sizes) {
-      renderer = new THREE.WebGLRenderer({
+    initRenderer(canvas, sizes) {
+      const renderer = new THREE.WebGLRenderer({
         canvas
       })
       renderer.setSize(sizes.width, sizes.height)

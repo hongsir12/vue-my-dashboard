@@ -6,9 +6,9 @@
 <script>
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
 import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js'
-
+import stats from '../utils/stats'
+import { listenResize, initGui } from '../utils/utils'
 export default {
   data() {
     return {
@@ -25,9 +25,10 @@ export default {
       },
       material: null, // 当前网格材质
       texture: null,
-      lights: {},
+      lights: {}, // 灯光集合
+      helpers: {}, // 助手集合
       obj: {}, // 对象集合
-      params: {
+      debugObj: {
         // 调试面板参数对象
       }
     }
@@ -35,36 +36,26 @@ export default {
   watch: {},
   beforeMount() {},
   mounted() {
-    this.sizes.width = this.$refs['three-box'].offsetWidth
-    this.sizes.height = this.$refs['three-box'].offsetHeight
+    const el = document.querySelector('.three-box')
     this.scene = new THREE.Scene()
     this.canvas = this.$refs.canvas
+    el.appendChild(stats.dom)
+    this.sizes = this.initSize(this.sizes)
+    this.gui = initGui()
     this.clock = new THREE.Clock()
-    this.initGui()
-    // this.initAxes()
     this.initLights()
     this.setHelper()
     this.createObject()
+    this.setLightDebug(this.gui, this.lights, this.helpers)
     // Camera
-    this.initCamera()
+    this.camera = this.initCamera(this.sizes)
     // Controls
-    this.initControls()
+    this.controls = this.initControls(this.camera, this.canvas)
     // Renderer
-    this.initRenderer()
+    this.renderer = this.initRenderer(this.canvas, this.sizes)
+
     // Sizes
-    window.addEventListener('resize', () => {
-      // Update sizes
-      this.sizes.width = window.innerWidth
-      this.sizes.height = window.innerHeight
-
-      // Update camera
-      this.camera.aspect = this.sizes.width / this.sizes.height
-      this.camera.updateProjectionMatrix()
-
-      // Update renderer
-      this.renderer.setSize(this.sizes.width, this.sizes.height)
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    })
+    listenResize(this.sizes, this.camera, this.renderer)
     // Animate
     this.tick()
   },
@@ -72,23 +63,18 @@ export default {
     this.gui.destroy()
   },
   methods: {
-    initGui() {
-      // 实例化可视化GUI工具   可以通过按 H 键隐藏GUI面板
-      this.gui = new dat.GUI() // 可传递对象参数{ closed:true ,width:400}
-      this.gui.domElement.style.marginTop = '50px'
-      // gui.hide()  //隐藏GUI面板，可通过按两次 H键开启显示
-    },
-    initAxes() {
-      this.axes = new THREE.AxesHelper(5)
-      this.scene.add(this.axes)
+    initSize(sizes) {
+      sizes.width = this.$refs['three-box'].offsetWidth
+      sizes.height = this.$refs['three-box'].offsetHeight
+      return sizes
     },
     initLights() {
-      const ambientLight = this.addAmbientLight()
-      const directionalLight = this.addDirectionalLight()
-      const hemisphereLight = this.addHemisphereLight()
-      const pointLight = this.addPointLight()
-      const rectAreaLight = this.addRectAreaLight()
-      const spotLight = this.addSpotLight()
+      const ambientLight = this.addAmbientLight() // 环境光
+      const directionalLight = this.addDirectionalLight() // 平行光
+      const hemisphereLight = this.addHemisphereLight() // 半球光
+      const pointLight = this.addPointLight() // 点光源
+      const rectAreaLight = this.addRectAreaLight() // 平面光光源
+      const spotLight = this.addSpotLight() // 聚光灯
       this.lights = {
         ambientLight,
         directionalLight,
@@ -196,10 +182,18 @@ export default {
         )
         rectAreaLightHelper.update()
       })
+      this.helpers = {
+        hemisphereLightHelper,
+        directionalLightHelper,
+        pointLightHelper,
+        spotLightHelper,
+        rectAreaLightHelper
+      }
     },
     createObject() {
       const material = new THREE.MeshStandardMaterial()
       material.roughness = 0.4
+      material.metalness = 0
 
       // Objects
       const sphere = new THREE.Mesh(
@@ -227,7 +221,7 @@ export default {
       plane.position.y = -0.65
 
       this.scene.add(sphere, cube, torus, plane)
-
+      this.material = material
       this.obj = {
         sphere,
         cube,
@@ -235,30 +229,180 @@ export default {
         plane
       }
     },
-    initCamera() {
-      this.camera = new THREE.PerspectiveCamera(
+    setLightDebug(
+      gui,
+      {
+        ambientLight,
+        directionalLight,
+        hemisphereLight,
+        pointLight,
+        rectAreaLight,
+        spotLight
+      },
+      {
+        hemisphereLightHelper,
+        directionalLightHelper,
+        pointLightHelper,
+        spotLightHelper,
+        rectAreaLightHelper
+      }
+    ) {
+      const meshFolder = gui.addFolder('Mesh')
+      meshFolder.add(this.material, 'metalness', 0, 1, 0.001)
+      meshFolder.add(this.material, 'roughness', 0, 1, 0.001)
+      meshFolder.add(this.material, 'wireframe')
+
+      const ambientLightFolder = gui.addFolder('环境光')
+      ambientLightFolder.add(ambientLight, 'visible').listen()
+      ambientLightFolder
+        .add(ambientLight, 'intensity', 0, 1, 0.001)
+        .name('光强')
+
+      const directionalLightFolder = gui.addFolder('平行光')
+      directionalLightFolder
+        .add(directionalLight, 'visible')
+        .onChange((visible) => {
+          directionalLightHelper.visible = visible
+        })
+        .listen()
+      directionalLightFolder
+        .add(directionalLightHelper, 'visible')
+        .name('helper visible')
+        .listen()
+      directionalLightFolder
+        .add(directionalLight, 'intensity', 0, 1, 0.001)
+        .name('光强')
+
+      const hemisphereLightFolder = gui.addFolder('半球光')
+      hemisphereLightFolder
+        .add(hemisphereLight, 'visible')
+        .onChange((visible) => {
+          hemisphereLightHelper.visible = visible
+        })
+        .listen()
+      hemisphereLightFolder
+        .add(hemisphereLightHelper, 'visible')
+        .name('helper visible')
+        .listen()
+      hemisphereLightFolder
+        .add(hemisphereLight, 'intensity', 0, 1, 0.001)
+        .name('光强')
+
+      const pointLightFolder = gui.addFolder('点光源')
+      pointLightFolder
+        .add(pointLight, 'visible')
+        .onChange((visible) => {
+          pointLightHelper.visible = visible
+        })
+        .listen()
+      pointLightFolder
+        .add(pointLightHelper, 'visible')
+        .name('helper visible')
+        .listen()
+      pointLightFolder
+        .add(pointLight, 'distance', 0, 100, 0.00001)
+        .name('光线距离') // 从光源到光照强度为0的位置
+      pointLightFolder.add(pointLight, 'decay', 0, 10, 0.00001).name('光线衰减') // 沿着光照距离的衰退量
+
+      const rectAreaLightFolder = gui.addFolder('平面光光源')
+      rectAreaLightFolder
+        .add(rectAreaLight, 'visible')
+        .onChange((visible) => {
+          rectAreaLightHelper.visible = visible
+        })
+        .listen()
+      rectAreaLightFolder
+        .add(rectAreaLightHelper, 'visible')
+        .name('helper visible')
+        .listen()
+      rectAreaLightFolder
+        .add(rectAreaLight, 'intensity', 0, 80, 0.0001)
+        .name('光强')
+      rectAreaLightFolder
+        .add(rectAreaLight, 'width', 0, 5, 0.0001)
+        .name('光源宽度')
+      rectAreaLightFolder
+        .add(rectAreaLight, 'height', 0, 5, 0.0001)
+        .name('光源高度')
+
+      const spotLightFolder = gui.addFolder('聚光灯')
+      spotLightFolder
+        .add(spotLight, 'visible')
+        .onChange((visible) => {
+          spotLightHelper.visible = visible
+        })
+        .listen()
+      spotLightFolder
+        .add(spotLightHelper, 'visible')
+        .name('helper visible')
+        .listen()
+      spotLightFolder.add(spotLight, 'intensity', 0, 5, 0.001).name('光强')
+      spotLightFolder.add(spotLight, 'distance', 0, 20, 0.001).name('光线距离')
+      spotLightFolder
+        .add(spotLight, 'angle', 0, Math.PI / 2, 0.001)
+        .name('光线散射角')
+      spotLightFolder
+        .add(spotLight, 'penumbra', 0, 1, 0.001)
+        .name('聚光锥衰减百分比')
+      spotLightFolder.add(spotLight, 'decay', 0, 10, 0.001).name('光线衰减')
+
+      const guiObj = {
+        turnOffAllLights() {
+          ambientLight.visible = false
+          directionalLight.visible = false
+          directionalLightHelper.visible = false
+          hemisphereLight.visible = false
+          hemisphereLightHelper.visible = false
+          pointLight.visible = false
+          pointLightHelper.visible = false
+          rectAreaLight.visible = false
+          rectAreaLightHelper.visible = false
+          spotLight.visible = false
+          spotLightHelper.visible = false
+        },
+        turnOnAllLights() {
+          ambientLight.visible = true
+          directionalLight.visible = true
+          directionalLightHelper.visible = true
+          hemisphereLight.visible = true
+          hemisphereLightHelper.visible = true
+          pointLight.visible = true
+          pointLightHelper.visible = true
+          rectAreaLight.visible = true
+          rectAreaLightHelper.visible = true
+          spotLight.visible = true
+          spotLightHelper.visible = true
+        }
+      }
+
+      gui.add(guiObj, 'turnOffAllLights')
+      gui.add(guiObj, 'turnOnAllLights')
+    },
+    initCamera(sizes) {
+      const camera = new THREE.PerspectiveCamera(
         75,
-        this.sizes.width / this.sizes.height,
+        sizes.width / sizes.height,
         0.1,
         100
       )
-      this.camera.position.x = 1
-      this.camera.position.y = 1
-      this.camera.position.z = 2
-      this.scene.add(this.camera)
+      camera.position.set(1, 1, 2)
+      return camera
     },
-    initControls() {
-      this.controls = new OrbitControls(this.camera, this.canvas)
-      this.controls.enableDamping = true
+    initControls(camera, canvas) {
+      const controls = new OrbitControls(camera, canvas)
+      controls.enableDamping = true
+      return controls
     },
-    initRenderer() {
-      this.renderer = new THREE.WebGLRenderer({
-        canvas: this.canvas
+    initRenderer(canvas, sizes) {
+      const renderer = new THREE.WebGLRenderer({
+        canvas
       })
-      this.renderer.setSize(this.sizes.width, this.sizes.height)
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setSize(sizes.width, sizes.height)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      return renderer
     },
     tick() {
+      stats.begin()
       const elapsedTime = this.clock.getElapsedTime()
       // Update objects
       this.obj.sphere.rotation.y = 0.1 * elapsedTime
@@ -273,7 +417,7 @@ export default {
 
       // Render
       this.renderer.render(this.scene, this.camera)
-
+      stats.end()
       // Call tick again on the next frame
       window.requestAnimationFrame(this.tick)
     }
