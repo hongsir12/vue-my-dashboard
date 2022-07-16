@@ -87,10 +87,22 @@ export const constantRoutes = [
         meta: { title: '材质' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        path: '3D-Text',
+        name: '3D文字',
+        component: () => import('@/views/threeJS/13-3D-Text/index'),
+        meta: { title: '3D文字' }
+      },
+      {
+        path: 'lights',
+        name: '灯光',
+        component: () => import('@/views/threeJS/14-lights/index'),
+        meta: { title: '灯光' }
+      },
+      {
+        path: 'shadows',
+        name: '阴影',
+        component: () => import('@/views/threeJS/15-shadows/index'),
+        meta: { title: '阴影' }
       }
     ]
   },

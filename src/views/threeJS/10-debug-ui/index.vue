@@ -8,7 +8,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
-import * as dat from 'dat.gui'
+import { initGui, initAxes } from '../utils/utils'
 
 export default {
   data() {
@@ -32,8 +32,8 @@ export default {
     this.sizes.height = this.$refs['three-box'].offsetHeight
     this.scene = new THREE.Scene()
     this.canvas = this.$refs.canvas1
-    this.initGui()
-    this.initAxes()
+    this.gui = initGui()
+    this.axes = initAxes(this.scene)
     this.createObject()
     // Camera
     this.initCamera()
@@ -57,12 +57,6 @@ export default {
   },
 
   methods: {
-    initGui() {
-      // 实例化可视化GUI工具   可以通过按 H 键隐藏GUI面板
-      this.gui = new dat.GUI() // 可传递对象参数{ closed:true ,width:400}
-      this.gui.domElement.style.marginTop = '50px'
-      // gui.hide()  //隐藏GUI面板，可通过按两次 H键开启显示
-    },
     initAxes() {
       this.axes = new THREE.AxesHelper(5)
       this.scene.add(this.axes)
@@ -179,6 +173,4 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

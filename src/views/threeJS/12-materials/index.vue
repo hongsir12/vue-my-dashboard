@@ -6,7 +6,7 @@
 <script>
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
+import { initGui } from '../utils/utils'
 
 export default {
   data() {
@@ -49,7 +49,7 @@ export default {
     this.scene = new THREE.Scene()
     this.canvas = this.$refs.canvas
     this.clock = new THREE.Clock()
-    this.initGui()
+    this.gui = initGui()
     this.loadTexture()
     this.initMaterials()
     this.settingMaterial('meshBasicMaterial')
@@ -81,49 +81,43 @@ export default {
     this.gui.destroy()
   },
   methods: {
-    initGui() {
-      // 实例化可视化GUI工具   可以通过按 H 键隐藏GUI面板
-      this.gui = new dat.GUI() // 可传递对象参数{ closed:true ,width:400}
-      this.gui.domElement.style.marginTop = '50px'
-      // gui.hide()  //隐藏GUI面板，可通过按两次 H键开启显示
-    },
     loadTexture() {
       const textureLoader = new THREE.TextureLoader()
       const cubeTextureLoader = new THREE.CubeTextureLoader()
       const doorColorTexture = textureLoader.load(
-        require('@/assets/11-textures/door/color.jpg')
+        '/static/11-textures/door/color.jpg'
       )
       const doorAlphaTexture = textureLoader.load(
-        require('@/assets/11-textures/door/alpha.jpg')
+        '/static/11-textures/door/alpha.jpg'
       )
       const doorAmbientOcclusionTexture = textureLoader.load(
-        require('@/assets/11-textures/door/ambientOcclusion.jpg')
+        '/static/11-textures/door/ambientOcclusion.jpg'
       )
       const doorHeightTexture = textureLoader.load(
-        require('@/assets/11-textures/door/height.jpg')
+        '/static/11-textures/door/height.jpg'
       )
       const doorMetalnessTexture = textureLoader.load(
-        require('@/assets/11-textures/door/metalness.jpg')
+        '/static/11-textures/door/metalness.jpg'
       )
       const doorNormalTexture = textureLoader.load(
-        require('@/assets/11-textures/door/normal.jpg')
+        '/static/11-textures/door/normal.jpg'
       )
       const doorRoughnessTexture = textureLoader.load(
-        require('@/assets/11-textures/door/roughness.jpg')
+        '/static/11-textures/door/roughness.jpg'
       )
       const matcapsTexture = textureLoader.load(
-        require('@/assets/11-textures/matcaps/3.png')
+        '/static/11-textures/matcaps/3.png'
       )
       const gradientTexture = textureLoader.load(
-        require('@/assets/11-textures/gradients/5.jpg')
+        '/static/11-textures/gradients/5.jpg'
       )
       const environmentMapTexture = cubeTextureLoader.load([
-        require('@/assets/11-textures/environmentMaps/0/px.jpg'),
-        require('@/assets/11-textures/environmentMaps/0/nx.jpg'),
-        require('@/assets/11-textures/environmentMaps/0/py.jpg'),
-        require('@/assets/11-textures/environmentMaps/0/nx.jpg'),
-        require('@/assets/11-textures/environmentMaps/0/pz.jpg'),
-        require('@/assets/11-textures/environmentMaps/0/nz.jpg')
+        '/static/11-textures/environmentMaps/0/px.jpg',
+        '/static/11-textures/environmentMaps/0/nx.jpg',
+        '/static/11-textures/environmentMaps/0/py.jpg',
+        '/static/11-textures/environmentMaps/0/nx.jpg',
+        '/static/11-textures/environmentMaps/0/pz.jpg',
+        '/static/11-textures/environmentMaps/0/nz.jpg'
       ])
       this.texturesMap = {
         doorColorTexture,
@@ -256,6 +250,7 @@ export default {
           .onChange(() => {
             if (this.params.loadEnvMap) {
               this.gui.__folders['meshStandardMaterial'].removeFolder(material)
+              // 环境贴图environment map
               const envMaterial = new THREE.MeshStandardMaterial()
               envMaterial.metalness = 0.7
               envMaterial.roughness = 0.2
@@ -278,14 +273,6 @@ export default {
       }
     },
     createObject(texture) {
-      // 环境贴图environment map
-      // const material = new THREE.MeshStandardMaterial()
-      // material.metalness = 0.7
-      // material.roughness = 0.2
-      // material.envMap = texture
-      // this.gui.add(material, 'metalness').min(0).max(1).step(0.0001)
-      // this.gui.add(material, 'roughness').min(0).max(1).step(0.0001)
-
       const sphere = new THREE.Mesh(
         new THREE.SphereBufferGeometry(0.5, 64, 64),
         this.material

@@ -6,7 +6,7 @@
 <script>
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'dat.gui'
+import { initGui } from '../utils/utils'
 
 export default {
   data() {
@@ -29,7 +29,7 @@ export default {
     this.sizes.height = this.$refs['three-box'].offsetHeight
     this.scene = new THREE.Scene()
     this.canvas = this.$refs.canvas
-    this.initGui()
+    this.gui = initGui()
     this.loadTexture()
     this.createObject(this.texturesMap.colorTexture)
     // Camera
@@ -59,12 +59,6 @@ export default {
     this.gui.destroy()
   },
   methods: {
-    initGui() {
-      // 实例化可视化GUI工具   可以通过按 H 键隐藏GUI面板
-      this.gui = new dat.GUI() // 可传递对象参数{ closed:true ,width:400}
-      this.gui.domElement.style.marginTop = '50px'
-      // gui.hide()  //隐藏GUI面板，可通过按两次 H键开启显示
-    },
     loadTexture() {
       // 原理
       // const image = new Image()
@@ -93,7 +87,7 @@ export default {
       // 实例化纹理加载器,使用加载管理器loadingManager来跟踪 TextureLoader 的加载进度流程
       const textureLoader = new THREE.TextureLoader(loadingManager)
       const colorTexture = textureLoader.load(
-        require('@/assets/11-textures/door/color.jpg')
+        '/static/11-textures/door/color.jpg'
         // () => {
         //   // 加载完成时将调用
         //   console.log('load')
@@ -108,10 +102,10 @@ export default {
         // }
       )
       const checkerboard1024Texture = textureLoader.load(
-        require('@/assets/11-textures/checkerboard-1024x1024.png')
+        '/static/11-textures/checkerboard-1024x1024.png'
       )
       const checkerboard8Texture = textureLoader.load(
-        require('@/assets/11-textures/checkerboard-8x8.png')
+        '/static/11-textures/checkerboard-8x8.png'
         // () => {
         //   // 加载完成时将调用
         //   console.log('load')
@@ -126,7 +120,7 @@ export default {
         // }
       )
       const minecraftTexture = textureLoader.load(
-        require('@/assets/11-textures/minecraft.png')
+        '/static/11-textures/minecraft.png'
       )
 
       // 纹理在表面上重复多少次
