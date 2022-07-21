@@ -65,44 +65,50 @@ export const constantRoutes = [
       {
         path: 'geometries',
         name: '几何体',
-        component: () => import('@/views/threeJS/09-geometries/index'),
+        component: () => import('@/views/threeJS/09-geometries/geometries'),
         meta: { title: '几何体' }
       },
       {
         path: 'debug-ui',
         name: '调试面板',
-        component: () => import('@/views/threeJS/10-debug-ui/index'),
+        component: () => import('@/views/threeJS/10-debug-ui/debug-ui'),
         meta: { title: '调试面板' }
       },
       {
         path: 'textures',
         name: '纹理',
-        component: () => import('@/views/threeJS/11-textures/index'),
+        component: () => import('@/views/threeJS/11-textures/textures'),
         meta: { title: '纹理' }
       },
       {
         path: 'material',
         name: '材质',
-        component: () => import('@/views/threeJS/12-materials/index'),
+        component: () => import('@/views/threeJS/12-materials/materials'),
         meta: { title: '材质' }
       },
       {
         path: '3D-Text',
         name: '3D文字',
-        component: () => import('@/views/threeJS/13-3D-Text/index'),
+        component: () => import('@/views/threeJS/13-3D-Text/3D-Text'),
         meta: { title: '3D文字' }
       },
       {
         path: 'lights',
         name: '灯光',
-        component: () => import('@/views/threeJS/14-lights/index'),
+        component: () => import('@/views/threeJS/14-lights/lights'),
         meta: { title: '灯光' }
       },
       {
         path: 'shadows',
         name: '阴影',
-        component: () => import('@/views/threeJS/15-shadows/index'),
+        component: () => import('@/views/threeJS/15-shadows/shadows'),
         meta: { title: '阴影' }
+      },
+      {
+        path: 'hauntedHouse',
+        name: '简单鬼屋',
+        component: () => import('@/views/threeJS/16-hauntedHouse/hauntedHouse'),
+        meta: { title: '简单鬼屋' }
       }
     ]
   },
