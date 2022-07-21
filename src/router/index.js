@@ -109,6 +109,12 @@ export const constantRoutes = [
         name: '简单鬼屋',
         component: () => import('@/views/threeJS/16-hauntedHouse/hauntedHouse'),
         meta: { title: '简单鬼屋' }
+      },
+      {
+        path: 'particles',
+        name: '粒子',
+        component: () => import('@/views/threeJS/17-particles/particles'),
+        meta: { title: '粒子' }
       }
     ]
   },
