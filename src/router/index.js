@@ -115,6 +115,12 @@ export const constantRoutes = [
         name: '粒子',
         component: () => import('@/views/threeJS/17-particles/particles'),
         meta: { title: '粒子' }
+      },
+      {
+        path: 'galaxyGenerator',
+        name: '银河星系',
+        component: () => import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
+        meta: { title: '银河星系' }
       }
     ]
   },

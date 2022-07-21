@@ -38,7 +38,7 @@ export default {
     this.sizes = this.initSize(this.sizes)
     this.gui = initGui()
     this.textureLoader = new THREE.TextureLoader()
-    this.texture = this.loadTextures(3, this.textureLoader)
+    this.texture = this.loadTextures(this.debugObj.texture, this.textureLoader)
     this.particles = this.createParticles()
     this.camera = this.initCamera(this.sizes)
     this.controls = this.initControls(this.camera, this.canvas)
