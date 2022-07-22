@@ -121,6 +121,12 @@ export const constantRoutes = [
         name: '银河星系',
         component: () => import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
         meta: { title: '银河星系' }
+      },
+      {
+        path: 'rayCaster',
+        name: '光线投射',
+        component: () => import('@/views/threeJS/19-raycaster/rayCaster'),
+        meta: { title: '光线投射' }
       }
     ]
   },
