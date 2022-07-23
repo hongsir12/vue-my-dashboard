@@ -127,6 +127,18 @@ export const constantRoutes = [
         name: '光线投射',
         component: () => import('@/views/threeJS/19-raycaster/rayCaster'),
         meta: { title: '光线投射' }
+      },
+      {
+        path: 'scrollBasedAnimation',
+        name: '基于页面滚动动画',
+        component: () => import('@/views/threeJS/20-ScrollBasedAnimation/scrollBasedAnimation'),
+        meta: { title: '基于页面滚动动画' }
+      },
+      {
+        path: 'physics',
+        name: '物理引擎',
+        component: () => import('@/views/threeJS/21-Physics/physics'),
+        meta: { title: '物理引擎' }
       }
     ]
   },

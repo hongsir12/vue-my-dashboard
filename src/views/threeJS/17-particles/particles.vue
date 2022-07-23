@@ -68,7 +68,7 @@ export default {
       })
       particlesMaterial.transparent = true
       particlesMaterial.alphaMap = this.texture
-      const count = 500000
+      const count = 10000
       const positions = new Float32Array(count * 3)
       const colors = new Float32Array(count * 3)
       for (let i = 0; i < count * 3; i++) {
