@@ -47,12 +47,14 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
-    }]
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index'),
+        meta: { title: 'Dashboard', icon: 'dashboard' }
+      }
+    ]
   },
 
   {
@@ -119,7 +121,8 @@ export const constantRoutes = [
       {
         path: 'galaxyGenerator',
         name: '银河星系',
-        component: () => import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
+        component: () =>
+          import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
         meta: { title: '银河星系' }
       },
       {
@@ -131,7 +134,10 @@ export const constantRoutes = [
       {
         path: 'scrollBasedAnimation',
         name: '基于页面滚动动画',
-        component: () => import('@/views/threeJS/20-ScrollBasedAnimation/scrollBasedAnimation'),
+        component: () =>
+          import(
+            '@/views/threeJS/20-ScrollBasedAnimation/scrollBasedAnimation'
+          ),
         meta: { title: '基于页面滚动动画' }
       },
       {
@@ -139,6 +145,12 @@ export const constantRoutes = [
         name: '物理引擎',
         component: () => import('@/views/threeJS/21-Physics/physics'),
         meta: { title: '物理引擎' }
+      },
+      {
+        path: 'physicsMuti',
+        name: '物理引擎——多物体',
+        component: () => import('@/views/threeJS/22-PhysicsMuti/physicsMuti'),
+        meta: { title: '物理引擎——多物体' }
       }
     ]
   },
@@ -146,12 +158,21 @@ export const constantRoutes = [
   {
     path: '/form',
     component: Layout,
+    redirect: '/form/index',
+    name: 'Form',
+    meta: { title: 'Form', icon: 'form' },
     children: [
       {
-        path: 'index',
-        name: 'Form',
+        path: 'form',
+        name: '表单',
         component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        meta: { title: '表单' }
+      },
+      {
+        path: 'vue-create',
+        name: '动态表单',
+        component: () => import('@/views/form/form-create/form-create'),
+        meta: { title: '动态表单' }
       }
     ]
   },
@@ -186,13 +207,15 @@ export const constantRoutes = [
             children: [
               {
                 path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
+                component: () =>
+                  import('@/views/nested/menu1/menu1-2/menu1-2-1'),
                 name: 'Menu1-2-1',
                 meta: { title: 'Menu1-2-1' }
               },
               {
                 path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
+                component: () =>
+                  import('@/views/nested/menu1/menu1-2/menu1-2-2'),
                 name: 'Menu1-2-2',
                 meta: { title: 'Menu1-2-2' }
               }
@@ -230,11 +253,12 @@ export const constantRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 

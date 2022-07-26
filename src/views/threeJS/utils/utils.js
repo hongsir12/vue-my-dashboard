@@ -1,4 +1,5 @@
 import * as dat from 'dat.gui'
+import * as lildat from 'lil-gui'
 import { AxesHelper } from 'three'
 /**
  * 监听窗口变化
@@ -47,12 +48,22 @@ export const dbClkFullScreen = (canvas) => {
   })
 }
 
-// 初始化调试面板
+// 初始化datgui调试面板
 export const initGui = () => {
   const gui = new dat.GUI()
   const guiEl = gui.domElement.parentNode // 获取其容器父节点的目的是为了在beforeDestroy周期调用gui.destroy()
   guiEl.classList.add('guiBox')
   guiEl.firstChild.style.marginRight = 0
+  const el = document.querySelector('.three-box')
+  el.appendChild(guiEl) // 将面板位置移到页面组件元素中
+  return gui
+}
+
+// 初始化lilgui调试面板
+export const initLilGui = () => {
+  const gui = new lildat.GUI()
+  const guiEl = gui.domElement
+  guiEl.classList.add('guiBox')
   const el = document.querySelector('.three-box')
   el.appendChild(guiEl) // 将面板位置移到页面组件元素中
   return gui

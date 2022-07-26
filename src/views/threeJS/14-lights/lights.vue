@@ -414,6 +414,8 @@ export default {
       this.obj.torus.rotation.x = 0.15 * elapsedTime
       // Update controls
       this.controls.update()
+      this.helpers.rectAreaLightHelper.update()
+      this.helpers.spotLightHelper.update()
 
       // Render
       this.renderer.render(this.scene, this.camera)
