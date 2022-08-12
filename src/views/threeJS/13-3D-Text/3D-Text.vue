@@ -72,23 +72,27 @@ export default {
           const matcapTexture = textureLoader.load(
             '/static/11-textures/matcaps/3.png'
           )
-          const material = new THREE.MeshMatcapMaterial()
-          material.matcap = matcapTexture
+          // const material = new THREE.MeshMatcapMaterial()
+          // material.matcap = matcapTexture
+
+          const material = new THREE.MeshBasicMaterial()
           let text
           const createText = (textInfo = this.debugObj.text) => {
             const textGeometry = new THREE.TextBufferGeometry(textInfo, {
               font,
               size: 0.5,
               height: 0.2,
-              curveSegments: 12,
-              bevelEnabled: true,
+              curveSegments: 1,
+              bevelEnabled: false,
               bevelThickness: 0.03,
               bevelSize: 0.02,
               bevelOffset: 0,
               bevelSegments: 5
             })
             textGeometry.center()
+            console.log(textGeometry)
             text = new THREE.Mesh(textGeometry, material)
+            this.gui.add(material, 'wireframe')
             this.scene.add(text)
           }
           createText()

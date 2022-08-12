@@ -100,6 +100,32 @@ export default {
                   required: 'true',
                   message: '请填写显示名称',
                   trigger: 'blur'
+                },
+                {
+                  validator: (rule, value, callback) => {
+                    if (value[0] === '=') {
+                      let formula = value.split('').slice(1).join('')
+                      console.log('formula', formula)
+                      const regExp = /[a-zA-Z]\d+/g
+                      const res = formula.match(regExp)
+                      console.log('res', res)
+                      const regExp2 = /\([a-zA-Z]\d+\)/g
+                      const res2 = formula.match(regExp2) || []
+                      console.log('res2', res2)
+                      res.forEach((item, index) => {
+                        formula = formula.replace(res2[index], res[index])
+                      })
+                      if (!this.fn(formula, res)) {
+                        callback(new Error('请输入正确的数学公式'))
+                      }
+                    } else {
+                      const regExp = /^[0-9]{0,9}.[0-9]{1,2}$/g
+                      if (!regExp.test(value)) {
+                        callback(new Error('不超过13位'))
+                      }
+                    }
+                  },
+                  trigger: 'blur'
                 }
               ],
               col: { span: 12 }
@@ -130,11 +156,89 @@ export default {
                   required: 'true',
                   message: '请填写序号',
                   trigger: 'blur'
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: 'row',
+          children: [
+            {
+              type: 'col',
+              props: { span: 2 },
+              children: [
                 {
-                  pattern: /^[0-9]*[1-9][0-9]*$/g,
-                  message: '只能输入正整数',
-                  trigger: 'blur'
+                  type: 'el-dropdown',
+                  props: { trigger: 'click' },
+                  on: {
+                    command: (type) => {
+                      switch (type) {
+                        case '1':
+                          this.importExcel()
+                          break
+                        case '2':
+                          console.log(2)
+                          break
+                      }
+                    }
+                  },
+                  children: [
+                    {
+                      type: 'button',
+                      children: [
+                        '导入导出',
+                        {
+                          type: 'i',
+                          class: 'el-icon-arrow-down el-icon--right'
+                        }
+                      ],
+                      props: { type: 'primary' }
+                    },
+                    {
+                      type: 'el-dropdown-menu',
+                      props: { slot: 'dropdown' },
+                      children: [
+                        {
+                          type: 'el-dropdown-item',
+                          props: { command: '1' },
+                          children: [
+                            '导入Excel',
+                            {
+                              type: 'input',
+                              style: 'display:none',
+                              props: {
+                                type: 'file',
+                                accept: '.xls,.xlsx',
+                                id: 'importFile'
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          type: 'el-dropdown-item',
+                          children: ['模板下载'],
+                          props: { command: '2' }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              type: 'col',
+              props: { span: 2 },
+              children: [
+                {
+                  type: 'el-date-picker',
+                  field: 'section_day2',
+                  value: '2022-07-13',
+                  props: {
+                    type: 'date',
+                    format: 'yyyy-MM-dd',
+                    placeholder: '选择日期'
+                  }
                 }
               ]
             }
@@ -147,6 +251,83 @@ export default {
   mounted() {},
 
   methods: {
+    fn(string, arr) {
+      // 剔除空白符
+      string = string.replace(/\s/g, '')
+
+      // 错误情况，空字符串
+      if (string === '') {
+        return false
+      }
+
+      // 错误情况，运算符连续
+      if (/[\+\-\*\/]{2,}/.test(string)) {
+        return false
+      }
+      // 错误情况，乘号除号开头
+      if (/^[\*\/]/.test(string)) {
+        return false
+      }
+      // 错误情况，运算符结尾
+      if (/[\+\-\*\/]$/.test(string)) {
+        return false
+      }
+
+      // 空括号
+      if (/\(\)/.test(string)) {
+        return false
+      }
+
+      // 错误情况，括号不配对
+      var stack = []
+      for (var i = 0, item; i < string.length; i++) {
+        item = string.charAt(i)
+        if (item === '(') {
+          stack.push('(')
+        } else if (item === ')') {
+          if (stack.length > 0) {
+            stack.pop()
+          } else {
+            return false
+          }
+        }
+      }
+      if (stack.length !== 0) {
+        return false
+      }
+
+      // 错误情况，(后面是运算符
+      if (/\([\+\-\*\/]/.test(string)) {
+        return false
+      }
+
+      // 错误情况，)前面是运算符
+      if (/[\+\-\*\/]\)/.test(string)) {
+        return false
+      }
+
+      // 错误情况，(前面不是运算符
+      if (/[^\+\-\*\/]\(/.test(string)) {
+        return false
+      }
+
+      // 错误情况，)后面不是运算符
+      if (/\)[^\+\-\*\/]/.test(string)) {
+        return false
+      }
+
+      // 错误情况，变量没有来自“待选公式变量”
+      var tmpStr = string.replace(/[\(\)\+\-\*\/]{1,}/g, '`')
+      var array = tmpStr.split('`')
+      for (var i = 0, item; i < array.length; i++) {
+        item = array[i]
+        if (/[A-Z]/i.test(item) && arr.indexOf(item) == -1) {
+          return false
+        }
+      }
+
+      return true
+    },
     showDialog(model) {
       if (model === 'edit') {
         this.dialog.title = '编辑'
@@ -162,6 +343,14 @@ export default {
         this.dialog.title = '新增'
       }
       this.dialog.visible = true
+    },
+    importExcel() {
+      const inp = document.getElementById('importFile')
+      console.log(inp)
+      inp.click()
+    },
+    inpChange(e) {
+      console.log(e)
     },
     closeDialog() {
       this.dialog.visible = false

@@ -57,7 +57,9 @@ export default {
       // 声明一个缓冲类几何体(性能更好)
       const geometry = new THREE.BufferGeometry()
       // 创建n个顶点数据数组
+      // 创建50个三角形
       const count = 50
+      // 每个三角形包含三个点，每个点包含3个值，因此需要50*3*3个数据
       const positionArray = new Float32Array(count * 3 * 3)
       for (let i = 0; i < count * 3 * 3; i++) {
         positionArray[i] = (Math.random() - 0.5) * 4

@@ -50,9 +50,9 @@ export const constantRoutes = [
     children: [
       {
         path: 'dashboard',
-        name: 'Dashboard',
+        name: 'HONGSIR',
         component: () => import('@/views/dashboard/index'),
-        meta: { title: 'Dashboard', icon: 'dashboard' }
+        meta: { title: 'HONGSIR', icon: 'dashboard' }
       }
     ]
   },
@@ -151,6 +151,12 @@ export const constantRoutes = [
         name: '物理引擎——多物体',
         component: () => import('@/views/threeJS/22-PhysicsMuti/physicsMuti'),
         meta: { title: '物理引擎——多物体' }
+      },
+      {
+        path: 'audioPlayer',
+        name: '音频播放器',
+        component: () => import('@/views/threeJS/23-AudioPlayer/audioPlayer'),
+        meta: { title: '音频播放器' }
       }
     ]
   },
