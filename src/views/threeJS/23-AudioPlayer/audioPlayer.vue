@@ -78,6 +78,14 @@ export default {
     listenResize(this.sizes, this.camera, this.renderer)
     this.tick()
   },
+  beforeDestroy() {
+    console.log(this.scene)
+    this.scene.children.forEach((item) => {
+      if (item.type === 'Mesh') {
+        item.material.dispose()
+      }
+    })
+  },
   methods: {
     init() {
       this.loadCubeTexture()
@@ -110,6 +118,7 @@ export default {
         color: this.debugObj.textColor
       })
       testLineGroup = new THREE.Group()
+      // this.loadFont(material)
       this.createH(material)
       this.createO(material)
       this.createN(material)
@@ -119,17 +128,48 @@ export default {
       this.createR(material)
       this.scene.add(testLineGroup)
     },
+    loadFont(material) {
+      const fontLoader = new THREE.FontLoader()
+      const fontMaterial = new THREE.MeshBasicMaterial()
+      fontMaterial.wireframe = true
+      fontLoader.load('/static/fonts/FZKaTong-M19S_Regular.json', (font) => {
+        const textGeometry = new THREE.TextBufferGeometry('吴嘉豪', {
+          font,
+          size: 10,
+          height: 10,
+          curveSegments: 1,
+          bevelEnabled: false,
+          bevelThickness: 0.03,
+          bevelSize: 0.02,
+          bevelOffset: 0,
+          bevelSegments: 5
+        })
+        textGeometry.center()
+        this.textGeometry = textGeometry
+        console.log(textGeometry.attributes.position)
+        const textFont = new THREE.Mesh(textGeometry, fontMaterial)
+        // this.scene.add(textFont)
+        const array = textGeometry.attributes.position.array
+        const count = textGeometry.attributes.position.count
+        for (let i = 0; i < count; i += 3) {
+          this.addHorizontalLine(array[i], array[i + 1], array[i + 2], material)
+          this.addVerticalLine(array[i], array[i + 1], array[i + 2], material)
+        }
+      })
+    },
     createH(material) {
       const horizontalArr = [-30, -25]
       const numH = 50
       horizontalArr.forEach((x) => {
         for (let i = 0; i < numH; i++) {
-          this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+          this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
+          this.addVerticalLine(x, (-25 + i) * 0.2, 0, material)
         }
       })
       const numV = 25
       for (let i = 0; i < numV; i++) {
-        this.addVerticalLine((-25 + i) * 0.15 - 25.5, 0, material)
+        this.addVerticalLine((-25 + i) * 0.15 - 25.5, 0, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 - 25.5, 0, 0, material)
       }
     },
     createO(material) {
@@ -137,13 +177,19 @@ export default {
       const numH = 50
       horizontalArr.forEach((x) => {
         for (let i = 0; i < numH; i++) {
-          this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+          this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
+          this.addVerticalLine(x, (-25 + i) * 0.2, 0, material)
+          
         }
       })
       const numV = 25
       for (let i = 0; i < numV; i++) {
-        this.addVerticalLine((-25 + i) * 0.15 - 15.5, 4.3, material)
-        this.addVerticalLine((-25 + i) * 0.15 - 15.5, -4.5, material)
+        this.addVerticalLine((-25 + i) * 0.15 - 15.5, 4.3, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 - 15.5, 4.3, 0, material)
+
+        this.addVerticalLine((-25 + i) * 0.15 - 15.5, -4.5, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 - 15.5, -4.5, 0, material)
+
       }
     },
     createN(material) {
@@ -151,12 +197,25 @@ export default {
       const numH = 50
       horizontalArr.forEach((x) => {
         for (let i = 0; i < numH; i++) {
-          this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+          this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
+          this.addVerticalLine(x, (-25 + i) * 0.2, 0, material)
+
         }
       })
       const numV = 25
       for (let i = 0; i < numV; i++) {
-        this.addVerticalLine((-25 + i) * 0.15 - 5.5, (12 - i) * 0.35, material)
+        this.addVerticalLine(
+          (-25 + i) * 0.15 - 5.5,
+          (12 - i) * 0.35,
+          0,
+          material
+        )
+        this.addHorizontalLine(
+          (-25 + i) * 0.15 - 5.5,
+          (12 - i) * 0.35,
+          0,
+          material
+        )
       }
     },
     createG(material) {
@@ -165,12 +224,12 @@ export default {
       horizontalArr.forEach((x) => {
         if (x === 0) {
           for (let i = 0; i < numH; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
           }
         }
         if (x === 5) {
           for (let i = 0; i < numH / 2; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
           }
         }
       })
@@ -178,17 +237,17 @@ export default {
       numV.forEach((num) => {
         if (num === 32) {
           for (let i = 0; i < num; i++) {
-            this.addVerticalLine((-25 + i) * 0.15 + 4.5, 4.3, material)
+            this.addVerticalLine((-25 + i) * 0.15 + 4.5, 4.3, 0, material)
           }
         }
         if (num === 20) {
           for (let i = 0; i < num; i++) {
-            this.addVerticalLine((-25 + i) * 0.15 + 6.25, 0.5, material)
+            this.addVerticalLine((-25 + i) * 0.15 + 6.25, 0.5, 0, material)
           }
         }
         if (num === 25) {
           for (let i = 0; i < num; i++) {
-            this.addVerticalLine((-25 + i) * 0.15 + 4.5, -4.5, material)
+            this.addVerticalLine((-25 + i) * 0.15 + 4.5, -4.5, 0, material)
           }
         }
       })
@@ -199,20 +258,30 @@ export default {
       horizontalArr.forEach((x) => {
         if (x === 10) {
           for (let i = 0; i < numH / 2; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2 + 5, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2 + 5, 0, material)
+            this.addVerticalLine(x, (-25 + i) * 0.2 + 5, 0, material)
+
           }
         }
         if (x === 15) {
           for (let i = 0; i < numH / 2; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
+            this.addVerticalLine(x, (-25 + i) * 0.2, 0, material)
+
           }
         }
       })
       const numV = 35
       for (let i = 0; i < numV; i++) {
-        this.addVerticalLine((-25 + i) * 0.15 + 14.2, 4.3, material)
-        this.addVerticalLine((-25 + i) * 0.15 + 14.2, 0.5, material)
-        this.addVerticalLine((-25 + i) * 0.15 + 13.2, -4.5, material)
+        this.addVerticalLine((-25 + i) * 0.15 + 14.2, 4.3, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 + 14.2, 4.3, 0, material)
+
+        this.addVerticalLine((-25 + i) * 0.15 + 14.2, 0.5, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 + 14.2, 0.5, 0, material)
+
+        this.addVerticalLine((-25 + i) * 0.15 + 13.2, -4.5, 0, material)
+        this.addHorizontalLine((-25 + i) * 0.15 + 13.2, -4.5, 0, material)
+
       }
     },
     createI(material) {
@@ -220,7 +289,9 @@ export default {
       const numH = 50
       horizontalArr.forEach((x) => {
         for (let i = 0; i < numH; i++) {
-          this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+          this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
+          this.addVerticalLine(x, (-25 + i) * 0.2, 0, material)
+
         }
       })
     },
@@ -230,12 +301,12 @@ export default {
       horizontalArr.forEach((x) => {
         if (x === 25) {
           for (let i = 0; i < numH; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2, 0, material)
           }
         }
         if (x === 30) {
           for (let i = 0; i < numH / 2; i++) {
-            this.addHorizontalLine(x, (-25 + i) * 0.2 + 5, material)
+            this.addHorizontalLine(x, (-25 + i) * 0.2 + 5, 0, material)
           }
         }
       })
@@ -243,8 +314,8 @@ export default {
       numV.forEach((num) => {
         if (num === 25) {
           for (let i = 0; i < num; i++) {
-            this.addVerticalLine((-25 + i) * 0.15 + 29.5, 4.3, material)
-            this.addVerticalLine((-25 + i) * 0.15 + 29.5, 0.5, material)
+            this.addVerticalLine((-25 + i) * 0.15 + 29.5, 4.3, 0, material)
+            this.addVerticalLine((-25 + i) * 0.15 + 29.5, 0.5, 0, material)
           }
         }
         if (num === 35) {
@@ -252,6 +323,7 @@ export default {
             this.addVerticalLine(
               (-25 + i) * 0.15 + 29.5,
               (12 - i) * 0.138 - 2,
+              0,
               material
             )
           }
@@ -259,8 +331,9 @@ export default {
       })
     },
     // 添加水平线
-    addHorizontalLine(x, y, material) {
-      testLineNodes.push(new TestLine(0, x, y))
+    addHorizontalLine(x, y, z, material) {
+      testLineNodes.push(new TestLine(0, x, y, z))
+
       const lineH = new THREE.Line(
         new THREE.BufferGeometry().setAttribute(
           'position',
@@ -276,8 +349,8 @@ export default {
       testLineGroup.add(lineH)
     },
     // 添加垂直线
-    addVerticalLine(x, y, material) {
-      testLineNodes.push(new TestLine(0, x, y))
+    addVerticalLine(x, y, z, material) {
+      testLineNodes.push(new TestLine(0, x, y, z))
       const lineV = new THREE.Line(
         new THREE.BufferGeometry().setAttribute(
           'position',
@@ -384,7 +457,9 @@ export default {
     renderGeometries(vertices) {
       const res = []
       vertices = vertices.concat(vertices[0])
-      vertices.forEach((value) => res.push(value.x, value.y, 0))
+      vertices.forEach((value) =>
+        res.push(value.x, value.y, value.z ? value.z : 0)
+      )
       return new THREE.BufferAttribute(new Float32Array(res), 3)
     },
     addTriangle() {
@@ -515,7 +590,7 @@ export default {
           const testLineGeometry = testLine[index].geometry
           const lineAttributes = testLineGeometry.getAttribute('position')
           lineAttributes.set(
-            [position[0].x, position[0].y, 0, position[1].x, position[1].y, 0],
+            [position[0].x, position[0].y, position[0].z, position[1].x, position[1].y, position[1].z],
             0
           )
           lineAttributes.needsUpdate = true
@@ -523,7 +598,7 @@ export default {
           const testLineGeometry = testLine[index].geometry
           const lineAttributes = testLineGeometry.getAttribute('position')
           lineAttributes.set(
-            [position[2].x, position[2].y, 0, position[3].x, position[3].y, 0],
+            [position[2].x, position[2].y, position[2].z, position[3].x, position[3].y, position[3].z],
             0
           )
           lineAttributes.needsUpdate = true

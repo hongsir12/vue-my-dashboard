@@ -184,6 +184,46 @@ export const constantRoutes = [
   },
 
   {
+    path: '/jsPlumb',
+    component: Layout,
+    redirect: '/jsPlumb/demo1',
+    name: 'jsPlumb',
+    meta: { title: 'jsPlumb', icon: 'nested' },
+    children: [
+      {
+        path: 'demo1',
+        name: 'demo1',
+        component: () => import('@/views/jsPlumb/demo1'),
+        meta: { title: 'demo1' }
+      },
+      {
+        path: 'demo2',
+        name: 'demo2',
+        component: () => import('@/views/jsPlumb/demo2'),
+        meta: { title: 'demo2' }
+      },
+      {
+        path: 'demo3',
+        name: 'demo3',
+        component: () => import('@/views/jsPlumb/demo3'),
+        meta: { title: 'demo3' }
+      },
+      {
+        path: 'demo4',
+        name: 'demo4',
+        component: () => import('@/views/jsPlumb/demo4'),
+        meta: { title: 'demo4' }
+      },
+      {
+        path: 'demo5',
+        name: 'demo5',
+        component: () => import('@/views/jsPlumb/demo5'),
+        meta: { title: 'demo5' }
+      }
+    ]
+  },
+
+  {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
