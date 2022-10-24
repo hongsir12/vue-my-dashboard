@@ -29,43 +29,52 @@ export default {
         [
           {
             title: '我是a1啦啦',
-            id: 'a1'
+            id: 'a1',
+            data: 'a1的数据'
           },
           {
             title: '我是a2啦啦',
-            id: 'a2'
+            id: 'a2',
+            data: 'a2的数据'
           },
           {
             title: '我是a3啦啦',
-            id: 'a3'
+            id: 'a3',
+            data: 'a3的数据'
           }
         ],
         [
           {
             title: '我是b1啦啦',
-            id: 'b1'
+            id: 'b1',
+            data: 'b1的数据'
           },
           {
             title: '我是b2啦啦',
-            id: 'b2'
+            id: 'b2',
+            data: 'b2的数据'
           },
           {
             title: '我是b3啦啦',
-            id: 'b3'
+            id: 'b3',
+            data: 'b3的数据'
           }
         ],
         [
           {
             title: '我是c1啦啦',
-            id: 'c1'
+            id: 'c1',
+            data: 'c1的数据'
           },
           {
             title: '我是c2啦啦',
-            id: 'c2'
+            id: 'c2',
+            data: 'c2的数据'
           },
           {
             title: '我是c3啦啦',
-            id: 'c3'
+            id: 'c3',
+            data: 'c3的数据'
           }
         ]
       ],
@@ -90,6 +99,8 @@ export default {
     //   ul.innerHTML = lis
     //   document.getElementById('container').appendChild(ul)
     // })
+    const dataArr = this.data.flat()
+
     this.$nextTick(() => {
       jsPlumb.ready(() => {
         // 初始化jsPlumb 创建jsPlumb实例
@@ -102,6 +113,20 @@ export default {
         this.setRule()
         jsPlumb.fire('jsPlumbDemoLoaded', this.instance)
       })
+      this.instance.bind('dblclick', (conn, originEvent) => {
+        let slabel, elabel
+        dataArr.forEach((data) => {
+          if (conn.sourceId === data.id) {
+            slabel = data.data
+          }
+          if (conn.targetId === data.id) {
+            elabel = data.data
+          }
+        })
+        conn.setLabel({
+          label: `${slabel}->${elabel}`
+        })
+      })
     })
 
     // 给button注册点击事件获取连线关系
@@ -111,7 +136,6 @@ export default {
         newRelationship += ` ${el.sourceId}连接了${el.targetId}`
       })
       document.querySelector('.textarea').value = newRelationship
-      console.log(document.querySelector('.textarea'))
       //  jsplumb常用方法
       // jsplumb.getConnections({souce: 'sourceID', target: 'targetID'});  //获取指定连线
       // 1. jsPlumb.getAllConnections() 获取所有连接线
@@ -131,19 +155,50 @@ export default {
         Container: 'container', // 目标容器id
         ListStyle: {
           endpoint: ['Rectangle', { width: 30, height: 30 }]
-        }
+        },
+        /**
+         * 连线的样式
+         */
+        PaintStyle: {
+          // 线的颜色
+          stroke: '#E0E3E7',
+          // 线的粗细，值越大线越粗
+          strokeWidth: 1,
+          // 设置外边线的颜色，默认设置透明，这样别人就看不见了，点击线的时候可以不用精确点击，参考 https://blog.csdn.net/roymno2/article/details/72717101
+          outlineStroke: 'transparent',
+          // 线外边的宽，值越大，线的点击范围越大
+          outlineWidth: 10
+        },
+        // 鼠标滑过线的样式
+        HoverPaintStyle: { stroke: '#b0b2b5', strokeWidth: 1 },
+        Overlays: [
+          // 箭头叠加
+          [
+            'Arrow',
+            {
+              width: 10, // 箭头尾部的宽度
+              length: 8, // 从箭头的尾部到头部的距离
+              location: 1, // 位置，建议使用0～1之间
+              direction: 1, // 方向，默认值为1（表示向前），可选-1（表示向后）
+              foldback: 0.623 // 折回，也就是尾翼的角度，默认0.623，当为1时，为正三角
+            }
+          ],
+          // ['Diamond', {        //     events: {        //         dblclick: function (diamondOverlay, originalEvent) {        //             console.log('double click on diamond overlay for : ' + diamondOverlay.component)        //         }        //     }        // }],
+          [
+            'Label',
+            { label: '', location: 0.5, cssClass: 'endpointTargetLabel' }
+          ]
+        ]
       })
     },
     // 设置可以连线的元素
     setContainer() {
       // 相当于css选择器 也可以使用id选择等
       const uls = jsPlumb.getSelector('.ul-list')
-      console.log(uls)
       // 将dom元素设置为连线的起点或者终点  设置了起点的元素才能开始连线 设置为终点的元素才能为连线终点
       this.instance.batch(() => {
         uls.forEach((ul) => {
           const lis = ul.querySelectorAll('li')
-          console.log(lis)
           lis.forEach((li) => {
             // 将li设置为起点
             this.instance.makeSource(li, {
@@ -163,6 +218,24 @@ export default {
       this.relationship.forEach((el) => {
         // source是连线起点元素id target是连线终点元素id
         this.instance.connect({ source: el.source, target: el.target })
+      })
+      var conn = this.instance.getConnections()
+      console.log(conn)
+      const dataArr = this.data.flat()
+      conn.forEach((e) => {
+        let slabel, elabel
+        dataArr.forEach((data) => {
+          if (e.sourceId === data.id) {
+            slabel = data.data
+          }
+          if (e.targetId === data.id) {
+            elabel = data.data
+          }
+        })
+        e.setLabel({
+          label: `${slabel}->${elabel}`
+        })
+        console.log(e.sourceId, e.targetId)
       })
     },
     // 只允许连接相邻的列表
@@ -198,6 +271,7 @@ export default {
 #container1 {
   position: relative;
   .ul-list {
+    padding-left: 300px;
     display: inline-block;
     li {
       list-style-type: none;

@@ -6,7 +6,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 // import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import formCreate from '@form-create/element-ui'
-
+import VCharts from 'v-charts'
+import _ from 'lodash'
 import '@/styles/index.scss' // global css
 
 import App from './App'
@@ -15,6 +16,13 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+
+import utils from './utils/toolMethod.js'
+Vue.prototype.$utils = utils
+Vue.prototype._ = _
+
+import alertMsg from './utils/message'
+Vue.prototype.$msg = alertMsg
 
 /**
  * If you don't want to use mock-server
@@ -34,6 +42,7 @@ if (process.env.NODE_ENV === 'production') {
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
 Vue.use(formCreate)
+Vue.use(VCharts)
 Vue.config.productionTip = false
 
 new Vue({

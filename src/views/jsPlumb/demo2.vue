@@ -1,9 +1,9 @@
 <template>
   <div class="demo2">
     <div id="container2">
-      <div id="item_left" class="item" />
-      <div id="item_bottom" class="item" style="top: 200px" />
-      <div id="item_right" class="item" style="left: 500px" />
+      <div id="item_left" class="item">a1</div>
+      <div id="item_bottom" class="item" style="top: 200px">a2</div>
+      <div id="item_right" class="item" style="left: 500px">a3</div>
     </div>
   </div>
 </template>
@@ -27,14 +27,24 @@ export default {
         endpoint: 'Rectangle',
         connector: ['Bezier'],
         anchor: ['Left', 'Right'],
-        paintStyle: { stroke: 'lightgray', strokeWidth: 3 }, // 线条样式
+        paintStyle: {
+          stroke: 'lightgray',
+          strokeWidth: 3, // 线外边的宽，值越大，线的点击范围越大
+          outlineWidth: 10
+        }, // 线条样式
         // 端点样式
         endpointStyle: {
           fill: 'lightgray',
           outlineStroke: 'darkgray',
           outlineWidth: 2
         },
-        overlays: [['Arrow', { width: 12, length: 12, location: 0.5 }]]
+        overlays: [
+          ['Arrow', { width: 12, length: 12, location: 0.5 }],
+          [
+            'Label',
+            { label: '标签', location: 0.5, cssClass: 'endpointTargetLabel' }
+          ]
+        ]
       }
       this.instance.connect(
         {
@@ -53,6 +63,11 @@ export default {
       // this.instance.draggable('item_left')
       // this.instance.draggable('item_bottom')
       this.instance.draggable('item_right')
+      this.instance.bind('dblclick', (conn, originEvent) => {
+        console.log(conn)
+        console.log(conn.getLabelOverlay())
+        console.log(conn.source.outerText, conn.target.outerText)
+      })
     })
   },
   beforeDestroy() {

@@ -34,6 +34,20 @@
         </div>
       </div>
     </div>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose"
+    >
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -42,7 +56,6 @@ const deff = {
   jsplumbSetting: {
     // 动态锚点、位置自适应
     Anchors: ['Right', 'Left'],
-    anchor: ['Right', 'Left'],
     // 容器ID
     Container: 'efContainer',
     // 连线的样式，直线或者曲线等，可选值:  StateMachine、Flowchart，Bezier、Straight
@@ -135,7 +148,7 @@ const deff = {
         }
       ],
       // ['Diamond', {        //     events: {        //         dblclick: function (diamondOverlay, originalEvent) {        //             console.log('double click on diamond overlay for : ' + diamondOverlay.component)        //         }        //     }        // }],
-      ['Label', { label: '', location: 0.1, cssClass: 'aLabel' }]
+      ['Label', { label: '', location: 0.5, cssClass: 'endpointTargetLabel' }]
     ],
     // 绘制图的模式 svg、canvas
     RenderMode: 'canvas',
@@ -217,6 +230,7 @@ import { jsPlumb } from 'jsplumb'
 export default {
   data() {
     return {
+      dialogVisible: false,
       menuList: [
         { label: 'abc', id: '1' },
         { label: 'bcd', id: '2' },
@@ -231,6 +245,17 @@ export default {
   mounted() {
     this.plumbIns = jsPlumb.getInstance()
     this.jsPlumbInit()
+    this.plumbIns.bind('dblclick', (conn, originEvent) => {
+      this.dialogVisible = true
+      console.log(conn)
+      console.log(conn.getOverlays())
+      console.log(conn.source.outerText, conn.target.outerText)
+      const from = conn.source.outerText
+      const to = conn.target.outerText
+      conn.setLabel({
+        label: `${from}->${to}`
+      })
+    })
   },
   methods: {
     jsPlumbInit() {
@@ -273,13 +298,20 @@ export default {
           data.nodeContainerStyle.top = node.style.top
         }
       })
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then((_) => {
+          done()
+        })
+        .catch((_) => {})
     }
   }
 }
 </script>
 
 <!-- Use preprocessors via the lang attribute! e.g. <style lang="scss"> -->
-<style>
+<style scoped>
 body {
   margin: 0;
 }
@@ -347,4 +379,10 @@ ul > li {
 /* .node-drag:hover {
   display: inline-block;
 } */
+.endpointTargetLabel {
+  background-color: pink;
+  color: white;
+  padding: 0 2px;
+  font-size: 10px;
+}
 </style>

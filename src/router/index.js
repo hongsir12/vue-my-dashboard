@@ -57,47 +57,150 @@ export const constantRoutes = [
     ]
   },
 
+  // {
+  //   path: '/threeJS',
+  //   component: Layout,
+  //   redirect: '/threeJS/geometries',
+  //   name: 'threeJS',
+  //   meta: { title: 'threeJS', icon: 'el-icon-s-help' },
+  //   children: [
+  //     {
+  //       path: 'geometries',
+  //       name: '几何体',
+  //       component: () => import('@/views/threeJS/09-geometries/geometries'),
+  //       meta: { title: '几何体' }
+  //     },
+  //     {
+  //       path: 'debug-ui',
+  //       name: '调试面板',
+  //       component: () => import('@/views/threeJS/10-debug-ui/debug-ui'),
+  //       meta: { title: '调试面板' }
+  //     },
+  //     {
+  //       path: 'textures',
+  //       name: '纹理',
+  //       component: () => import('@/views/threeJS/11-textures/textures'),
+  //       meta: { title: '纹理' }
+  //     },
+  //     {
+  //       path: 'material',
+  //       name: '材质',
+  //       component: () => import('@/views/threeJS/12-materials/materials'),
+  //       meta: { title: '材质' }
+  //     },
+  //     {
+  //       path: '3D-Text',
+  //       name: '3D文字',
+  //       component: () => import('@/views/threeJS/13-3D-Text/3D-Text'),
+  //       meta: { title: '3D文字' }
+  //     },
+  //     {
+  //       path: 'lights',
+  //       name: '灯光',
+  //       component: () => import('@/views/threeJS/14-lights/lights'),
+  //       meta: { title: '灯光' }
+  //     },
+  //     {
+  //       path: 'shadows',
+  //       name: '阴影',
+  //       component: () => import('@/views/threeJS/15-shadows/shadows'),
+  //       meta: { title: '阴影' }
+  //     },
+  //     {
+  //       path: 'hauntedHouse',
+  //       name: '简单鬼屋',
+  //       component: () => import('@/views/threeJS/16-hauntedHouse/hauntedHouse'),
+  //       meta: { title: '简单鬼屋' }
+  //     },
+  //     {
+  //       path: 'particles',
+  //       name: '粒子',
+  //       component: () => import('@/views/threeJS/17-particles/particles'),
+  //       meta: { title: '粒子' }
+  //     },
+  //     {
+  //       path: 'galaxyGenerator',
+  //       name: '银河星系',
+  //       component: () =>
+  //         import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
+  //       meta: { title: '银河星系' }
+  //     },
+  //     {
+  //       path: 'rayCaster',
+  //       name: '光线投射',
+  //       component: () => import('@/views/threeJS/19-raycaster/rayCaster'),
+  //       meta: { title: '光线投射' }
+  //     },
+  //     {
+  //       path: 'scrollBasedAnimation',
+  //       name: '基于页面滚动动画',
+  //       component: () =>
+  //         import(
+  //           '@/views/threeJS/20-ScrollBasedAnimation/scrollBasedAnimation'
+  //         ),
+  //       meta: { title: '基于页面滚动动画' }
+  //     },
+  //     {
+  //       path: 'physics',
+  //       name: '物理引擎',
+  //       component: () => import('@/views/threeJS/21-Physics/physics'),
+  //       meta: { title: '物理引擎' }
+  //     },
+  //     {
+  //       path: 'physicsMuti',
+  //       name: '物理引擎——多物体',
+  //       component: () => import('@/views/threeJS/22-PhysicsMuti/physicsMuti'),
+  //       meta: { title: '物理引擎——多物体' }
+  //     },
+  //     {
+  //       path: 'audioPlayer',
+  //       name: '音频播放器',
+  //       component: () => import('@/views/threeJS/23-AudioPlayer/audioPlayer'),
+  //       meta: { title: '音频播放器' }
+  //     },
+  //     {
+  //       path: 'importModel',
+  //       name: '导入模型',
+  //       component: () => import('@/views/threeJS/25-importModel/importModel'),
+  //       meta: { title: '导入模型' }
+  //     }
+  //   ]
+  // },
   {
-    path: '/threeJS',
+    path: '/threeJS2',
     component: Layout,
-    redirect: '/threeJS/geometries',
-    name: 'threeJS',
-    meta: { title: 'threeJS', icon: 'el-icon-s-help' },
+    redirect: '/threeJS2/geometries',
+    name: 'threeJS2',
+    meta: { title: 'threeJS2', icon: 'el-icon-s-help' },
     children: [
       {
         path: 'geometries',
         name: '几何体',
-        component: () => import('@/views/threeJS/09-geometries/geometries'),
+        component: () => import('@/views/threeJS2/09-geometries/geometries'),
         meta: { title: '几何体' }
-      },
-      {
-        path: 'debug-ui',
-        name: '调试面板',
-        component: () => import('@/views/threeJS/10-debug-ui/debug-ui'),
-        meta: { title: '调试面板' }
       },
       {
         path: 'textures',
         name: '纹理',
-        component: () => import('@/views/threeJS/11-textures/textures'),
+        component: () => import('@/views/threeJS2/11-textures/textures'),
         meta: { title: '纹理' }
       },
       {
         path: 'material',
         name: '材质',
-        component: () => import('@/views/threeJS/12-materials/materials'),
+        component: () => import('@/views/threeJS2/12-materials/materials'),
         meta: { title: '材质' }
       },
       {
         path: '3D-Text',
         name: '3D文字',
-        component: () => import('@/views/threeJS/13-3D-Text/3D-Text'),
+        component: () => import('@/views/threeJS2/13-3D-Text/3D-Text'),
         meta: { title: '3D文字' }
       },
       {
         path: 'lights',
         name: '灯光',
-        component: () => import('@/views/threeJS/14-lights/lights'),
+        component: () => import('@/views/threeJS2/14-lights/lights'),
         meta: { title: '灯光' }
       },
       {
@@ -107,56 +210,10 @@ export const constantRoutes = [
         meta: { title: '阴影' }
       },
       {
-        path: 'hauntedHouse',
-        name: '简单鬼屋',
-        component: () => import('@/views/threeJS/16-hauntedHouse/hauntedHouse'),
-        meta: { title: '简单鬼屋' }
-      },
-      {
-        path: 'particles',
-        name: '粒子',
-        component: () => import('@/views/threeJS/17-particles/particles'),
-        meta: { title: '粒子' }
-      },
-      {
-        path: 'galaxyGenerator',
-        name: '银河星系',
-        component: () =>
-          import('@/views/threeJS/18-galaxyGenerator/galaxyGenerator'),
-        meta: { title: '银河星系' }
-      },
-      {
-        path: 'rayCaster',
-        name: '光线投射',
-        component: () => import('@/views/threeJS/19-raycaster/rayCaster'),
-        meta: { title: '光线投射' }
-      },
-      {
-        path: 'scrollBasedAnimation',
-        name: '基于页面滚动动画',
-        component: () =>
-          import(
-            '@/views/threeJS/20-ScrollBasedAnimation/scrollBasedAnimation'
-          ),
-        meta: { title: '基于页面滚动动画' }
-      },
-      {
-        path: 'physics',
-        name: '物理引擎',
-        component: () => import('@/views/threeJS/21-Physics/physics'),
-        meta: { title: '物理引擎' }
-      },
-      {
-        path: 'physicsMuti',
-        name: '物理引擎——多物体',
-        component: () => import('@/views/threeJS/22-PhysicsMuti/physicsMuti'),
-        meta: { title: '物理引擎——多物体' }
-      },
-      {
-        path: 'audioPlayer',
-        name: '音频播放器',
-        component: () => import('@/views/threeJS/23-AudioPlayer/audioPlayer'),
-        meta: { title: '音频播放器' }
+        path: 'importModel',
+        name: '导入模型',
+        component: () => import('@/views/threeJS2/25-importModel/importModel'),
+        meta: { title: '导入模型' }
       }
     ]
   },
@@ -219,6 +276,33 @@ export const constantRoutes = [
         name: 'demo5',
         component: () => import('@/views/jsPlumb/demo5'),
         meta: { title: 'demo5' }
+      },
+      {
+        path: 'demo6',
+        name: 'demo6',
+        component: () => import('@/views/jsPlumb/demo6'),
+        meta: { title: 'demo6' }
+      }
+    ]
+  },
+  {
+    path: '/charts',
+    component: Layout,
+    redirect: '/charts/index',
+    name: 'charts',
+    meta: { title: 'charts', icon: 'nested' },
+    children: [
+      {
+        path: 'chart',
+        name: 'chart',
+        component: () => import('@/views/charts/index'),
+        meta: { title: 'testChart' }
+      },
+      {
+        path: 'chart2',
+        name: 'chart2',
+        component: () => import('@/views/charts2/index'),
+        meta: { title: '图表2' }
       }
     ]
   },

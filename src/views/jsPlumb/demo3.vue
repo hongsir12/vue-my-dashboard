@@ -81,6 +81,16 @@ export default {
             stroke: '#409eff',
             strokeWidth: 5
           },
+          connectorStyle: {
+            // 线的颜色
+            stroke: 'red',
+            // 线的粗细，值越大线越粗
+            strokeWidth: 1,
+            // 设置外边线的颜色，默认设置透明，这样别人就看不见了，点击线的时候可以不用精确点击，参考 https://blog.csdn.net/roymno2/article/details/72717101
+            outlineStroke: 'transparent',
+            // 线外边的宽，值越大，线的点击范围越大
+            outlineWidth: 10
+          },
           overlays: [['Arrow', { width: 12, length: 12, location: 1 }]],
           RenderMode: 'svg'
         }
@@ -88,6 +98,16 @@ export default {
           // source是连线起点元素id target是连线终点元素id
           this.jsPlumb.connect({ source: el.source, target: el.target }, common)
         })
+      })
+    })
+    this.jsPlumb.bind('dblclick', (conn, originEvent) => {
+      console.log(conn)
+      console.log(conn.getOverlays())
+      console.log(conn.source.outerText, conn.target.outerText)
+      const from = conn.source.outerText
+      const to = conn.target.outerText
+      conn.setLabel({
+        label: `${from}->${to}`
       })
     })
   },
