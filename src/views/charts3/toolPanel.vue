@@ -55,7 +55,7 @@
               <span>类别轴/维度</span>
               <div class="drag-block-style">
                 <draggable
-                  v-model="selectedDimens"
+                  v-model="selectedDimensionsCopy"
                   group="all"
                   animation="300"
                   class="list-group"
@@ -63,7 +63,7 @@
                   @end="endR2L('dimens')"
                 >
                   <div
-                    v-for="item in selectedDimens"
+                    v-for="item in selectedDimensionsCopy"
                     :key="item.id"
                     class="list-group-item"
                   >
@@ -100,7 +100,7 @@
               <span>值轴/指标</span>
               <div class="drag-block-style">
                 <draggable
-                  v-model="selectedQuotas"
+                  v-model="selectedQuotasCopy"
                   animation="300"
                   group="all"
                   class="list-group"
@@ -108,11 +108,11 @@
                   @end="endR2L('quotas')"
                 >
                   <div
-                    v-for="item in selectedQuotas"
+                    v-for="item in selectedQuotasCopy"
                     :key="item.id"
                     class="list-group-item"
                   >
-                    <el-dropdown>
+                    <el-dropdown trigger="click">
                       <span class="el-dropdown-link el-dropdown-span">
                         <el-tag type="success"
                           >{{ item.name
@@ -132,6 +132,7 @@
                             class="el-icon-check"
                           />降序</el-dropdown-item
                         >
+                        <el-dropdown-item> 过滤 </el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </div>
@@ -180,7 +181,7 @@
                 </draggable>
               </div>
             </div>
-            <el-button type="primary" style="margin-top: 20px">保存</el-button>
+            <!-- <el-button type="primary" style="margin-top: 20px">保存</el-button> -->
           </div>
         </div>
       </el-tab-pane>
@@ -201,13 +202,6 @@ export default {
       type: String,
       required: true
     },
-    // 图表数据
-    charData: {
-      type: Array,
-      default: () => {
-        return []
-      }
-    },
     // 维度
     dimensions: {
       type: Array,
@@ -222,19 +216,67 @@ export default {
         return []
       }
     },
+    // 维度排序
+    sortDimens: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
+    // 维度
+    selectedDimensions: {
+      type: Array,
+      required: true
+    },
+    // 指标
+    selectedQuotas: {
+      type: Array,
+      required: true
+    },
+    // 数据过滤条件
+    filterCriteria: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    }
   },
   data() {
     return {
       activeName: 'first',
       moveId: '', // 移动的维度指标id
       dimensionsCopy: [], // 可选维度
-      selectedDimens: [], // 选择的维度
       quotasCopy: [], // 可选指标
-      selectedQuotas: [], // 选择的指标
+      selectedDimensionsCopy: [], // 显示的维度
+      selectedQuotasCopy: [], // 显示的指标
       filterFields: [] // 过滤的字段
     }
   },
   watch: {
+    selectedDimensions: {
+      handler(newVal) {
+        this.selectedDimensionsCopy = newVal
+      },
+      deep: true,
+      immediate: true
+    },
+    selectedQuotas: {
+      handler(newVal) {
+        this.selectedQuotasCopy = newVal
+      },
+      deep: true,
+      immediate: true
+    },
+    filterCriteria: {
+      handler(newVal) {
+        this.filterFields = []
+        for (const rec of newVal) {
+          this.filterFields.push({ name: rec.name, id: rec.id })
+        }
+      },
+      deep: true,
+      immediate: true
+    }
   },
   created() {
     this.dimensionsCopy = this.dimensions.map((e) => {
@@ -257,92 +299,100 @@ export default {
       this.filterFields = this.$utils.unique(this.filterFields, 'id')
       switch (type) {
         case 'dimens':
-          this.selectedDimens = this.$utils.unique(this.selectedDimens, 'id')
-          this.selectedQuotas = this.selectedQuotas.filter(
+          this.selectedDimensionsCopy = this.$utils.unique(
+            this.selectedDimensionsCopy,
+            'id'
+          )
+          this.selectedQuotasCopy = this.selectedQuotasCopy.filter(
             (quota) => quota.id !== this.moveId
           )
           break
         case 'quotas':
-          this.selectedQuotas = this.$utils.unique(this.selectedQuotas, 'id')
-          this.selectedDimens = this.selectedDimens.filter(
+          this.selectedQuotasCopy = this.$utils.unique(
+            this.selectedQuotasCopy,
+            'id'
+          )
+          this.selectedDimensionsCopy = this.selectedDimensionsCopy.filter(
             (dimen) => dimen.id !== this.moveId
           )
           break
         default:
           break
       }
-      this.moveId = ''
-      this.dimensionsCopy = [...this.dimensions]
-      this.quotasCopy = [...this.quotas]
       const obj = {
-        dimensions: this.selectedDimens,
-        quotas: this.selectedQuotas
+        dimensions: this.selectedDimensionsCopy,
+        quotas: this.selectedQuotasCopy
       }
       this.changeDimensionsAndQuotas(obj)
     },
     endR2L(type) {
+      this.dimensionsCopy = [...this.dimensions]
+      this.quotasCopy = [...this.quotas]
+      this.filterFields = this.$utils.unique(this.filterFields, 'id')
       switch (type) {
         case 'dimens':
-          this.dimensionsCopy = this.$utils.unique(this.dimensionsCopy, 'id')
-          this.quotasCopy = this.quotasCopy.filter(
+          this.selectedQuotasCopy = this.selectedQuotasCopy.filter(
             (quota) => quota.id !== this.moveId
           )
           break
         case 'quotas':
-          this.quotasCopy = this.$utils.unique(this.quotasCopy, 'id')
-          this.dimensionsCopy = this.dimensionsCopy.filter(
+          this.selectedDimensionsCopy = this.selectedDimensionsCopy.filter(
             (dimen) => dimen.id !== this.moveId
           )
           break
         case 'filter':
-          this.dimensionsCopy = [...this.dimensions]
-          this.quotasCopy = [...this.quotas]
+          // eslint-disable-next-line no-case-declarations
+          const selectedQuotas = this.selectedQuotasCopy.filter(
+            (quota) =>
+              quota.id === this.moveId &&
+              this.dimensions.map((e) => e.id).indexOf(quota.id) === -1
+          )
+          if (selectedQuotas.length) {
+            this.selectedQuotasCopy = this.$utils.unique(
+              this.selectedQuotasCopy,
+              'id'
+            )
+          } else {
+            this.selectedQuotasCopy = this.selectedQuotasCopy.filter(
+              (quota) => quota.id !== this.moveId
+            )
+          }
+          this.checkFilterCriteria()
+
           break
         default:
           break
       }
       const obj = {
-        dimensions: this.selectedDimens,
-        quotas: this.selectedQuotas
+        dimensions: this.selectedDimensionsCopy,
+        quotas: this.selectedQuotasCopy
       }
       this.changeDimensionsAndQuotas(obj)
     },
     // 下拉菜单排序选项事件
-    handleDimensCommand(command, name) {
-      switch (command) {
-        case 'ascDimens':
-          this.$set(
-            this.selectedDimens.filter((e) => e.name === name)[0],
-            'sort',
-            1
-          )
-          this.$emit('sortDimens', name, 'asc')
-          break
-        case 'descDimens':
-          this.$set(
-            this.selectedDimens.filter((e) => e.name === name)[0],
-            'sort',
-            -1
-          )
-          this.$emit('sortDimens', name, 'desc')
-          break
-        default:
-          break
-      }
-      this.$forceUpdate()
-    },
+    handleDimensCommand(command, name) {},
     // 过滤器事件
     handleFilterCommand(command, name) {
       switch (command) {
         case 'setFilterDialog':
-          this.$emit('getCurrentFilterName', name)
+          // eslint-disable-next-line no-case-declarations
+          // 过滤字段类型
+          const mark =
+            this.dimensions.filter((dimen) => dimen.name === name).length > 0
+              ? 'dimension'
+              : 'quota'
+          this.$emit('getCurrentFilterName', name, mark)
           this.$parent.showDialog('setFilter')
           break
         default:
           break
       }
     },
-    // 传值父组件选中的维度跟指标
+    // 检查当前过滤条件
+    checkFilterCriteria() {
+      this.$emit('checkFilterFields', this.filterFields)
+    },
+    // 传值父组件显示的维度跟指标
     changeDimensionsAndQuotas(val) {
       this.$emit('getDimensionsAndQuotas', val)
     }

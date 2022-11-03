@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%">
-    <ve-bar
+    <ve-histogram
       height="700px"
       :data="finalData"
       :title="title"
@@ -92,9 +92,9 @@ export default {
       handler(newVal) {
         console.log(newVal)
         switch (newVal) {
-          case 'verticalStackBar':
+          case 'stackHistogram':
             this.chartSettings = {
-              stack: { 堆叠: [...this.selectedQuotas] }
+              stack: { '堆叠': [...this.selectedQuotas] }
             }
             break
           default:

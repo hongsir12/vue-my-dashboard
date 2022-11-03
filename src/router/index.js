@@ -303,6 +303,12 @@ export const constantRoutes = [
         name: 'chart2',
         component: () => import('@/views/charts2/index'),
         meta: { title: '图表2' }
+      },
+      {
+        path: 'chart3',
+        name: 'chart3',
+        component: () => import('@/views/charts3/index'),
+        meta: { title: '图表3' }
       }
     ]
   },

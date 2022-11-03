@@ -1,10 +1,10 @@
 <template>
   <div style="width: 100%">
     <ve-line
-      height="350px"
+      height="700px"
       :data="finalData"
-      :title="title"
-      :settings="chartSettings"
+      :title="titleSetting"
+      :settings="settings"
     />
   </div>
 </template>
@@ -12,6 +12,10 @@
 <script>
 export default {
   props: {
+    title: {
+      type: String,
+      default: ''
+    },
     vType: {
       type: String,
       required: true
@@ -51,8 +55,8 @@ export default {
   data() {
     return {
       chartSettings: {},
-      title: {
-        text: '第一',
+      titleSetting: {
+        text: '标题',
         left: 'auto'
       },
       data: {},
@@ -83,8 +87,34 @@ export default {
     // finalData() {
     //   return this.filterVData(this.vData, this.sortDimens, this.filterCriteria)
     // }
+    settings() {
+      return this.chartSettings
+    }
   },
   watch: {
+    title: {
+      handler(newVal) {
+        this.titleSetting.text = newVal
+      },
+      immediate: true
+    },
+    vType: {
+      handler(newVal) {
+        console.log(newVal)
+        switch (newVal) {
+          case 'stackLine':
+            this.chartSettings = {
+              area: true,
+              stack: { 堆叠: [...this.selectedQuotas] }
+            }
+            break
+          default:
+            this.chartSettings = {}
+            break
+        }
+      },
+      immediate: true
+    },
     selectedDimensions: {
       handler(newVal) {
         this.finalData = this.filterVData(
@@ -97,6 +127,13 @@ export default {
     },
     selectedQuotas: {
       handler(newVal) {
+        if (this.vType === 'stackLine') {
+          this.chartSettings = {
+            area: true,
+            stack: { 堆叠: [...this.selectedQuotas] }
+          }
+        }
+
         this.finalData = this.filterVData(
           this.vData,
           this.sortDimens,
@@ -122,7 +159,7 @@ export default {
   },
 
   methods: {
-    // 字段过滤条件筛选数据
+    // 字段过滤条件筛选显示的数据
     filterCriteriaData(vData, filterCriteria) {
       let data = [...vData]
       const that = this
@@ -138,7 +175,6 @@ export default {
           })
         })
       }
-      console.log(data)
       return data
     },
     handleDimensSort(vData, sortDimens, selectedDimensions) {
@@ -152,7 +188,6 @@ export default {
           }
         }
       }
-      console.log(iteratees, orders)
       const data = this._.orderBy(vData, iteratees, orders)
       return data
     },

@@ -14,33 +14,31 @@
         <component
           :is="currentShowViewType"
           v-if="currentShowViewType"
-          :title="viewsDetailMap.title"
-          :v-type="viewsDetailMap.concreteVType"
-          :v-data="viewsDetailMap.chartData"
-          :selected-dimensions="viewsDetailMap.selectedDimensions"
-          :selected-quotas="viewsDetailMap.selectedQuotas"
-          :sort-dimens="viewsDetailMap.sortDimens"
-          :filter-criteria="viewsDetailMap.filterCriteria"
+          :title="currentViewDetail.title"
+          :v-type="currentViewDetail.concreteVType"
+          :v-data="currentViewDetail.chartData"
+          :selected-dimensions="currentViewDetail.selectedDimensions"
+          :selected-quotas="currentViewDetail.selectedQuotas"
+          :sort-dimens="currentViewDetail.sortDimens"
+          :filter-criteria="currentViewDetail.filterCriteria"
         />
       </div>
       <div class="tools-window-main">
         <toolPanel
           v-if="currentShowViewType"
           :show="currentShowViewType"
-          :dimensions="viewsDetailMap.dimensions"
-          :quotas="viewsDetailMap.quotas"
-          :selected-dimensions="viewsDetailMap.selectedDimensions"
-          :selected-quotas="viewsDetailMap.selectedQuotas"
-          :sort-dimens="viewsDetailMap.sortDimens"
-          :filter-criteria="viewsDetailMap.filterCriteria"
+          :dimensions="currentViewDetail.dimensions"
+          :quotas="currentViewDetail.quotas"
+          :selected-dimensions="currentViewDetail.selectedDimensions"
+          :selected-quotas="currentViewDetail.selectedQuotas"
+          :sort-dimens="currentViewDetail.sortDimens"
+          :filter-criteria="currentViewDetail.filterCriteria"
           @getDimensionsAndQuotas="getSelectedDimensionsAndQuotas"
-          @sortDimens="sortDimens"
           @getCurrentFilterName="getCurrentFilterName"
-          @getRemoveFilterId="getRemoveFilterId"
+          @checkFilterFields="checkFilterFields"
         />
       </div>
     </div>
-
     <addView
       v-if="addView.visible"
       :visible="addView.visible"
@@ -48,8 +46,13 @@
     />
     <setFilter
       v-if="setFilter.visible"
+      :id="setFilter.id"
       :visible="setFilter.visible"
       :name="setFilter.name"
+      :tab-radio="setFilter.radio"
+      :field-type="setFilter.fieldType"
+      :criteria="setFilter.criteria"
+      :tab-assert="setFilter.tabAssert"
       @getFilterCriteria="getFilterCriteria"
     />
   </div>
@@ -57,43 +60,33 @@
 
 <script>
 import addView from './dialog/addView.vue'
+import toolPanel from './toolPanel.vue'
 import setFilter from './dialog/setFilter.vue'
-import toolPanel from './toolPanel2.vue'
 import vLine from './common/line.vue' // 折线图
-import vHistogram from './common/histogram.vue' // 柱状图
-import vBar from './common/bar.vue' // 条形图
 export default {
   name: 'VueAdminTemplateIndex',
-  components: { addView, setFilter, toolPanel, vLine, vHistogram, vBar },
+  components: { addView, toolPanel, setFilter, vLine },
   data() {
     return {
       addView: {
         visible: false
       },
+      // 过滤器弹框
       setFilter: {
         visible: false,
-        name: ''
+        name: '', // 字段名称
+        id: '', // 字段id
+        fieldType: '', // 字段类型
+        criteria: [], // 过滤条件
+        radio: 2
       },
       currentShowViewType: '', // 当前显示的视图大类
       view: '', // 当前选择视图
       viewsOptions: [], // 已有视图选项
       // 已有视图具体配置
-      viewsDetailMap: {
-        title: '', // 视图名称
-        concreteVType: '', // 当前显示的视图的具体图表类型
-        dimensions: [], // 图表所有维度
-        quotas: [], // 图表所有指标
-        selectedDimensions: [], // 显示的维度
-        selectedQuotas: [], // 显示的指标
-        chartData: [], // 图表数据
-        // 维度排序
-        sortDimens: {
-          asc: [],
-          desc: []
-        },
-        // 过滤条件
-        filterCriteria: {}
-      }
+      viewsDetailMap: {},
+      // 当前视图配置
+      currentViewDetail: {}
     }
   },
 
@@ -101,22 +94,27 @@ export default {
 
   methods: {
     getView(val) {
-      console.log(val)
       this.viewsOptions.push({
         label: val.title,
         value: val.id,
         vType: val.vType
       })
-      this.viewsDetailMap[val.id] = this.viewsDetailMap[val.id] || {}
-    },
-    // 更改显示视图
-    changeShowView(viewId) {
-      const allVTypes = ['Line', 'Histogram', 'Bar']
-      const currentType = this.viewsOptions.filter(
-        (view) => view.value === viewId
-      )[0].vType
-      setTimeout(() => {
-        this.viewsDetailMap.chartData = [
+      this.viewsDetailMap[val.id] = this.viewsDetailMap[val.id] || {
+        title: val.title, // 视图名称
+        concreteVType: val.vType, // 当前显示的视图的具体图表类型
+        dimensions: [
+          { id: 'zyear', name: '年度' },
+          { id: 'werks', name: '工厂' },
+          { id: 'workshop', name: '车间' }
+        ], // 图表所有维度
+        quotas: [
+          { id: 'money', name: '直接人工' },
+          { id: 'water', name: '水电' },
+          { id: 'zhejiu', name: '折旧费' }
+        ], // 图表所有指标
+        selectedDimensions: [], // 显示的维度
+        selectedQuotas: [], // 显示的指标
+        chartData: [
           {
             直接人工: '604',
             车间: '配件车间',
@@ -333,70 +331,75 @@ export default {
             折旧费: '60',
             id: '792'
           }
-        ]
-        this.viewsDetailMap.dimensions = [
-          { id: 'zyear', name: '年度' },
-          { id: 'werks', name: '工厂' },
-          { id: 'workshop', name: '车间' }
-        ]
-        this.viewsDetailMap.quotas = [
-          { id: 'money', name: '直接人工' },
-          { id: 'water', name: '水电' },
-          { id: 'zhejiu', name: '折旧费' }
-        ]
-        this.viewsDetailMap.concreteVType = currentType
-        this.viewsDetailMap.selectedDimensions = []
-        this.viewsDetailMap.selectedQuotas = []
-        this.currentShowViewType =
-          'v' +
-          allVTypes.filter((type) => {
-            return currentType.includes(type)
-          })[0]
-      }, 200)
+        ], // 图表数据
+        // 维度排序
+        sortDimens: {
+          nosort: [],
+          asc: [],
+          desc: []
+        },
+        // 指标显示数据过滤条件
+        quotaFilterCriteria: [],
+        // 过滤条件
+        filterCriteria: []
+      }
+    },
+    changeShowView(viewId) {
+      this.currentViewDetail = this.viewsDetailMap[viewId]
+      const allVTypes = ['Line', 'Histogram', 'Bar']
+      const currentType = this.viewsOptions.filter(
+        (view) => view.value === viewId
+      )[0].vType
+      this.currentShowViewType =
+        'v' +
+        allVTypes.filter((type) => {
+          return currentType.includes(type)
+        })[0]
     },
     getSelectedDimensionsAndQuotas(obj) {
-      this.viewsDetailMap.selectedDimensions = obj.dimensions.map((e) => e.name)
-      this.viewsDetailMap.selectedQuotas = obj.quotas.map((e) => e.name)
-      for (const k in this.viewsDetailMap.sortDimens) {
-        this.viewsDetailMap.sortDimens[k] = this.viewsDetailMap.sortDimens[
-          k
-        ].filter((dimen) =>
-          this.viewsDetailMap.selectedDimensions.includes(dimen)
-        )
-      }
+      this.currentViewDetail.selectedDimensions = obj.dimensions
+      this.currentViewDetail.selectedQuotas = obj.quotas
     },
-    // 维度排序
-    sortDimens(name, sortType) {
-      for (const k in this.viewsDetailMap.sortDimens) {
-        if (k === sortType) {
-          if (this.viewsDetailMap.sortDimens[k].indexOf(name) === -1) {
-            this.viewsDetailMap.sortDimens[k].push(name)
-          }
-        } else {
-          const idx = this.viewsDetailMap.sortDimens[k].indexOf(name)
-          if (idx > -1) {
-            this.viewsDetailMap.sortDimens[k].splice(idx, 1)
-          }
-        }
-      }
-    },
-    // 获取过滤条件弹框字段值
-    getCurrentFilterName(name) {
-      this.setFilter.name = name
-    },
-    // 获取字段过滤条件
-    getFilterCriteria(obj) {
-      this.$set(this.viewsDetailMap.filterCriteria, obj.name, obj)
-    },
-    // 获得移除的过滤器字段id
-    getRemoveFilterId(id) {
-      console.log('removedId', id)
+    // 设置添加过滤条件弹框的内容
+    getCurrentFilterName(name, fieldType) {
       const allFields = [
-        ...this.viewsOptions.dimensions,
-        ...this.viewsDetailMap.quotas
+        ...this.currentViewDetail.dimensions,
+        ...this.currentViewDetail.quotas
       ]
-      const removedName = allFields.filter((field) => field.id === id)[0].name
-      console.log('removeName', removedName)
+      this.setFilter.name = name
+      this.setFilter.id = allFields.filter((field) => field.name === name)[0].id
+      this.setFilter.fieldType = fieldType
+      const arr = this.currentViewDetail.filterCriteria.filter(
+        (e) => e.name === name
+      )
+      if (arr.length) {
+        this.setFilter.criteria = arr[0].criteriaArr
+        this.setFilter.radio = arr[0].radio
+        this.setFilter.tabAssert = arr[0].assert
+      } else {
+        this.setFilter.criteria = []
+        this.setFilter.radio = 1
+        this.setFilter.tabAssert = '与'
+      }
+    },
+    // 检查当前过滤条件
+    checkFilterFields(fields) {
+      console.log('当前过滤字段', fields)
+      this.currentViewDetail.filterCriteria = this.currentViewDetail.filterCriteria.filter((item) => {
+        return fields.some((field) => field.id === item.id)
+      })
+      console.log(this.currentViewDetail.filterCriteria)
+    },
+    // 获取字段过滤条件数组
+    getFilterCriteria(obj) {
+      console.log(obj)
+      this.currentViewDetail.filterCriteria =
+        this.currentViewDetail.filterCriteria || []
+      this.currentViewDetail.filterCriteria.unshift(obj)
+      this.currentViewDetail.filterCriteria = this.$utils.unique(
+        this.currentViewDetail.filterCriteria,
+        'id'
+      )
     },
     showDialog(dialog) {
       this[dialog].visible = true
