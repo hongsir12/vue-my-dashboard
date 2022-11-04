@@ -33,6 +33,8 @@
           :selected-quotas="currentViewDetail.selectedQuotas"
           :sort-dimens="currentViewDetail.sortDimens"
           :filter-criteria="currentViewDetail.filterCriteria"
+          @ascDimens="ascDimens"
+          @descDimens="descDimens"
           @getDimensionsAndQuotas="getSelectedDimensionsAndQuotas"
           @getCurrentFilterName="getCurrentFilterName"
           @checkFilterFields="checkFilterFields"
@@ -89,7 +91,6 @@ export default {
       currentViewDetail: {}
     }
   },
-
   mounted() {},
 
   methods: {
@@ -333,11 +334,7 @@ export default {
           }
         ], // 图表数据
         // 维度排序
-        sortDimens: {
-          nosort: [],
-          asc: [],
-          desc: []
-        },
+        sortDimens: {},
         // 指标显示数据过滤条件
         quotaFilterCriteria: [],
         // 过滤条件
@@ -355,6 +352,26 @@ export default {
         allVTypes.filter((type) => {
           return currentType.includes(type)
         })[0]
+    },
+    ascDimens(name) {
+      this.$set(
+        this.currentViewDetail.selectedDimensions.filter(
+          (dimen) => dimen.name === name
+        )[0],
+        'sort',
+        1
+      )
+      this.$set(this.currentViewDetail.sortDimens, name, 1)
+    },
+    descDimens(name) {
+      this.$set(
+        this.currentViewDetail.selectedDimensions.filter(
+          (dimen) => dimen.name === name
+        )[0],
+        'sort',
+        -1
+      )
+      this.$set(this.currentViewDetail.sortDimens, name, -1)
     },
     getSelectedDimensionsAndQuotas(obj) {
       this.currentViewDetail.selectedDimensions = obj.dimensions
@@ -385,9 +402,10 @@ export default {
     // 检查当前过滤条件
     checkFilterFields(fields) {
       console.log('当前过滤字段', fields)
-      this.currentViewDetail.filterCriteria = this.currentViewDetail.filterCriteria.filter((item) => {
-        return fields.some((field) => field.id === item.id)
-      })
+      this.currentViewDetail.filterCriteria =
+        this.currentViewDetail.filterCriteria.filter((item) => {
+          return fields.some((field) => field.id === item.id)
+        })
       console.log(this.currentViewDetail.filterCriteria)
     },
     // 获取字段过滤条件数组

@@ -370,7 +370,21 @@ export default {
       this.changeDimensionsAndQuotas(obj)
     },
     // 下拉菜单排序选项事件
-    handleDimensCommand(command, name) {},
+    handleDimensCommand(command, name) {
+      switch (command) {
+        case 'ascDimens':
+          console.log('点击升序', name)
+          this.$emit('ascDimens', name)
+          break
+        case 'descDimens':
+          console.log('点击降序', name)
+          this.$emit('descDimens', name)
+          break
+        default:
+          break
+      }
+      this.$forceUpdate()
+    },
     // 过滤器事件
     handleFilterCommand(command, name) {
       switch (command) {

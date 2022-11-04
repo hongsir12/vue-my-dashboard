@@ -87,10 +87,10 @@ export default {
       return this.chartSettings
     },
     selectedDimensionsCopy() {
-      return this.selectedDimensions.map((e) => e.name)
+      return this.selectedDimensions
     },
     selectedQuotasCopy() {
-      return this.selectedQuotas.map((e) => e.name)
+      return this.selectedQuotas
     }
   },
   watch: {
@@ -148,6 +148,16 @@ export default {
       },
       deep: true
     },
+    sortDimens: {
+      handler(newVal) {
+        this.finalData = this.generateFinalData(
+          this.vData,
+          this.sortDimens,
+          newVal
+        )
+      },
+      deep: true
+    },
     filterCriteria: {
       handler(newVal) {
         this.finalData = this.generateFinalData(
@@ -169,6 +179,22 @@ export default {
   },
 
   methods: {
+    handleDimensSort(vData, sortDimens, selectedDimensions) {
+      console.log('排序map', sortDimens)
+      const orders = []
+      const iteratees = []
+      for (const dimen of selectedDimensions) {
+        if (sortDimens[dimen.name]) {
+          iteratees.push(dimen.name)
+          sortDimens[dimen.name] === 1
+            ? orders.push('asc')
+            : orders.push('desc')
+        }
+      }
+      console.log({ iteratees, orders })
+      const data = this._.orderBy(vData, iteratees, orders)
+      return data
+    },
     handleColumns(dimensions, quotas) {
       // 只选了一个维度
       if (dimensions.length) {
@@ -240,6 +266,7 @@ export default {
       })
       return filterData
     },
+    // 生成数据数组过滤条件
     generateEvalStr(criteria) {
       const typeArr = []
       let res = ''
@@ -304,14 +331,20 @@ export default {
       return res
     },
     generateFinalData(vData, sortDimens, filter = {}) {
+      console.log('触发生成最终数据')
+      const sortedData = this.handleDimensSort(
+        vData,
+        sortDimens,
+        this.selectedDimensions
+      )
       const columns = this.handleColumns(
-        this.selectedDimensionsCopy,
-        this.selectedQuotasCopy
+        this.selectedDimensionsCopy.map((e) => e.name),
+        this.selectedQuotasCopy.map((e) => e.name)
       )
       const data = this.handleRows(
-        vData,
-        this.selectedDimensionsCopy,
-        this.selectedQuotasCopy
+        sortedData,
+        this.selectedDimensionsCopy.map((e) => e.name),
+        this.selectedQuotasCopy.map((e) => e.name)
       )
       const filteredData = this.filterCriteriaData(data, filter)
       return {
