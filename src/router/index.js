@@ -214,6 +214,12 @@ export const constantRoutes = [
         name: '导入模型',
         component: () => import('@/views/threeJS2/25-importModel/importModel'),
         meta: { title: '导入模型' }
+      },
+      {
+        path: 'dominoes',
+        name: '多米诺骨牌',
+        component: () => import('@/views/threeJS2/26-dominoes/dominoes'),
+        meta: { title: '多米诺骨牌' }
       }
     ]
   },

@@ -65,9 +65,12 @@ import addView from './dialog/addView.vue'
 import toolPanel from './toolPanel.vue'
 import setFilter from './dialog/setFilter.vue'
 import vLine from './common/line.vue' // 折线图
+import vBar from './common/bar.vue'
+import vHistogram from './common/histogram.vue'
+import vPie from './common/pie.vue'
 export default {
   name: 'VueAdminTemplateIndex',
-  components: { addView, toolPanel, setFilter, vLine },
+  components: { addView, toolPanel, setFilter, vLine, vBar, vHistogram, vPie },
   data() {
     return {
       addView: {
@@ -343,7 +346,7 @@ export default {
     },
     changeShowView(viewId) {
       this.currentViewDetail = this.viewsDetailMap[viewId]
-      const allVTypes = ['Line', 'Histogram', 'Bar']
+      const allVTypes = ['Line', 'Histogram', 'Bar', 'Pie']
       const currentType = this.viewsOptions.filter(
         (view) => view.value === viewId
       )[0].vType

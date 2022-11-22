@@ -10,12 +10,12 @@ const initSizes = (ins) => {
   sizes.height = ins.$refs['three-box'].offsetHeight
   return sizes
 }
-const initCamera = (sizes) => {
+const initCamera = (sizes, obj = { fov: 75, near: 0.1, far: 100 }) => {
   const camera = new THREE.PerspectiveCamera(
-    75,
+    obj.fov,
     sizes.width / sizes.height,
-    0.1,
-    100
+    obj.near,
+    obj.far
   )
   camera.position.z = 3
   return camera

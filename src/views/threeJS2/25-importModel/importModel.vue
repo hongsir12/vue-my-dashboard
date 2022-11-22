@@ -47,7 +47,7 @@ export default {
       sizes: this.sizes
     })
     baseSetting.listenResize(this.sizes, this.camera, this.renderer)
-    this.gui = baseSetting.initLilGui()
+    c
     // Animate
     this.tick()
   },
