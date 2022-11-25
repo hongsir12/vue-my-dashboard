@@ -87,7 +87,7 @@ export default {
     },
     // 创建平行光--月光
     createMoonLight() {
-      const moonLight = new THREE.DirectionalLight('b9d5fff', 0.12)
+      const moonLight = new THREE.DirectionalLight('#b9d5ff', 0.12)
       moonLight.position.set(4, 5, -2)
       return moonLight
     },

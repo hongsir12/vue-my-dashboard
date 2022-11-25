@@ -188,6 +188,16 @@
       <el-tab-pane label="样式" name="second">
         <el-button>样式</el-button>
       </el-tab-pane>
+      <el-tab-pane label="高级" name="third">
+        <span>分析预警</span>
+        <el-collapse v-model="activeCollapseNames">
+          <el-collapse-item title="辅助线" name="1">
+            <div>
+              <el-button icon="el-icon-edit" circle @click="showAddMarkLine" />
+            </div>
+          </el-collapse-item>
+        </el-collapse>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -249,7 +259,8 @@ export default {
       quotasCopy: [], // 可选指标
       selectedDimensionsCopy: [], // 显示的维度
       selectedQuotasCopy: [], // 显示的指标
-      filterFields: [] // 过滤的字段
+      filterFields: [], // 过滤的字段
+      activeCollapseNames: ['1']
     }
   },
   watch: {
@@ -405,6 +416,10 @@ export default {
     // 检查当前过滤条件
     checkFilterCriteria() {
       this.$emit('checkFilterFields', this.filterFields)
+    },
+    // 显示预警线添加弹框
+    showAddMarkLine() {
+      this.$parent.showDialog('addMarkLine')
     },
     // 传值父组件显示的维度跟指标
     changeDimensionsAndQuotas(val) {

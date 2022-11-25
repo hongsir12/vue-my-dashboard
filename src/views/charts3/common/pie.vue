@@ -104,12 +104,6 @@ export default {
       handler(newVal) {
         console.log(newVal)
         switch (newVal) {
-          case 'stackLine':
-            this.chartSettings = {
-              area: true,
-              stack: { 堆叠: [...this.selectedQuotasCopy] }
-            }
-            break
           default:
             this.chartSettings = {}
             break

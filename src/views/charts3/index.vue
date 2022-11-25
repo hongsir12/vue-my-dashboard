@@ -21,6 +21,7 @@
           :selected-quotas="currentViewDetail.selectedQuotas"
           :sort-dimens="currentViewDetail.sortDimens"
           :filter-criteria="currentViewDetail.filterCriteria"
+          :mark-line-settings="currentViewDetail.markLine"
         />
       </div>
       <div class="tools-window-main">
@@ -57,6 +58,12 @@
       :tab-assert="setFilter.tabAssert"
       @getFilterCriteria="getFilterCriteria"
     />
+    <addMarkLine
+      v-if="addMarkLine.visible"
+      :visible="addMarkLine.visible"
+      :mark-line-settings="currentViewDetail.markLine"
+      @getMarkLineArr="getMarkLineArr"
+    />
   </div>
 </template>
 
@@ -64,13 +71,23 @@
 import addView from './dialog/addView.vue'
 import toolPanel from './toolPanel.vue'
 import setFilter from './dialog/setFilter.vue'
+import addMarkLine from './dialog/addMarkLine.vue'
 import vLine from './common/line.vue' // 折线图
 import vBar from './common/bar.vue'
 import vHistogram from './common/histogram.vue'
 import vPie from './common/pie.vue'
 export default {
   name: 'VueAdminTemplateIndex',
-  components: { addView, toolPanel, setFilter, vLine, vBar, vHistogram, vPie },
+  components: {
+    addView,
+    toolPanel,
+    setFilter,
+    addMarkLine,
+    vLine,
+    vBar,
+    vHistogram,
+    vPie
+  },
   data() {
     return {
       addView: {
@@ -84,6 +101,10 @@ export default {
         fieldType: '', // 字段类型
         criteria: [], // 过滤条件
         radio: 2
+      },
+      // 添加预警线弹框
+      addMarkLine: {
+        visible: false
       },
       currentShowViewType: '', // 当前显示的视图大类
       view: '', // 当前选择视图
@@ -341,7 +362,8 @@ export default {
         // 指标显示数据过滤条件
         quotaFilterCriteria: [],
         // 过滤条件
-        filterCriteria: []
+        filterCriteria: [],
+        markLine: []
       }
     },
     changeShowView(viewId) {
@@ -421,6 +443,10 @@ export default {
         this.currentViewDetail.filterCriteria,
         'id'
       )
+    },
+    // 获取markline设置
+    getMarkLineArr(val) {
+      this.currentViewDetail.markLine = val
     },
     showDialog(dialog) {
       this[dialog].visible = true

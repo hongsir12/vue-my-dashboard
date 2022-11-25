@@ -220,6 +220,12 @@ export const constantRoutes = [
         name: '多米诺骨牌',
         component: () => import('@/views/threeJS2/26-dominoes/dominoes'),
         meta: { title: '多米诺骨牌' }
+      },
+      {
+        path: 'theRoom',
+        name: '房间',
+        component: () => import('@/views/threeJS2/16-theRoom/theRoom'),
+        meta: { title: '房间' }
       }
     ]
   },

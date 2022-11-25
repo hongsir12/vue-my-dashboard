@@ -11,6 +11,10 @@ import * as CANNON from 'cannon-es'
 import CannonDebugger from 'cannon-es-debugger'
 import { initStats } from '../utils/stats'
 import baseSetting from '../utils/utils'
+
+let scene = null
+let world = null
+const objectsToUpdate = []
 export default {
   name: 'VueAdminTemplateDominoes',
 
@@ -18,9 +22,9 @@ export default {
     return {
       stats: null, // 帧率监视器
       canvas: null, // 画布
-      scene: null, // 场景
       camera: null, // 相机
       controls: null, // 控制器
+      renderer: null,
       mesh: null,
       sizes: {
         width: 0,
@@ -37,7 +41,6 @@ export default {
       dominoeDepth: 0.2,
       dominoeHeight: 3,
       dominoeWidth: 1.5,
-      objectsToUpdate: [],
       guiObj: {
         start: () => {},
         CannonDebugger: false
@@ -47,7 +50,7 @@ export default {
   },
 
   mounted() {
-    this.scene = new THREE.Scene()
+    scene = new THREE.Scene()
     this.stats = initStats()
     this.canvas = this.$refs.canvas
     this.sizes = baseSetting.initSizes(this)
@@ -74,30 +77,30 @@ export default {
     this.renderer.physicallyCorrectLights = true
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    this.handlePhysics()
+    world = this.handlePhysics()
     this.getMinifyPicColor().then((arr) => {
-      // arr.forEach((item, index) => {
-      //   item.forEach((color, i) => {
-      //     this.addOneDominoe(
-      //       (i * this.dominoeHeight) / 2,
-      //       this.dominoeHeight / 2,
-      //       1.5 * this.dominoeWidth * index,
-      //       color
-      //     )
-      //   })
-      // })
+      arr.forEach((item, index) => {
+        item.forEach((color, i) => {
+          this.addOneDominoe(
+            (i * this.dominoeHeight) / 2,
+            this.dominoeHeight / 2,
+            1.5 * this.dominoeWidth * index,
+            color
+          )
+        })
+      })
       this.addTriangle()
     })
     baseSetting.listenResize(this.sizes, this.camera, this.renderer)
     this.gui = baseSetting.initLilGui()
     this.guiObj.start = () => {
-      this.world.bodies[this.world.bodies.length - 1].applyForce(
+      world.bodies[world.bodies.length - 1].applyForce(
         new CANNON.Vec3(30, 0, 0),
         new CANNON.Vec3(0, 0, 0)
       )
     }
     const cannonMeshes = []
-    this.cannonDebugger = CannonDebugger(this.scene, this.world, {
+    this.cannonDebugger = CannonDebugger(scene, world, {
       onInit(body, mesh) {
         mesh.visible = false
         cannonMeshes.push(mesh)
@@ -122,10 +125,8 @@ export default {
     this.tick()
   },
   beforeDestroy() {
-    this.mesh.geometry.dispose()
-    this.mesh.material.dispose()
-    this.scene.remove(this.mesh)
     this.gui.destroy()
+    // console.log(this.renderer.info)
   },
 
   methods: {
@@ -143,7 +144,7 @@ export default {
       )
       plane.rotateX(-Math.PI / 2)
       plane.receiveShadow = true
-      this.scene.add(plane)
+      scene.add(plane)
 
       const directionLight = new THREE.DirectionalLight(0xffffff, 1)
       directionLight.castShadow = true
@@ -158,13 +159,13 @@ export default {
         directionLight.shadow.camera
       )
       directionalLightCameraHelper.visible = false
-      this.scene.add(directionalLightCameraHelper)
+      scene.add(directionalLightCameraHelper)
 
       directionLight.position.set(-50, 80, 60)
-      this.scene.add(directionLight)
+      scene.add(directionLight)
 
       const ambientLight = new THREE.AmbientLight(new THREE.Color('#ffffff'), 3)
-      this.scene.add(ambientLight)
+      scene.add(ambientLight)
     },
     handlePhysics() {
       const world = new CANNON.World()
@@ -199,7 +200,7 @@ export default {
         -Math.PI / 2
       )
       world.addBody(floorBody)
-      this.world = world
+      return world
     },
     addOneDominoe(x, y, z, color = { r: 255, g: 255, b: 255 }) {
       const material = new THREE.MeshStandardMaterial({
@@ -211,7 +212,7 @@ export default {
       dominoe.position.set(x, y, z)
       dominoe.castShadow = true
       dominoe.receiveShadow = true
-      this.scene.add(dominoe)
+      scene.add(dominoe)
 
       const shape = new CANNON.Box(
         new CANNON.Vec3(
@@ -227,8 +228,8 @@ export default {
       })
       body.position.copy(dominoe.position)
       body.sleepSpeedLimit = 1
-      this.world.addBody(body)
-      this.objectsToUpdate.push({
+      world.addBody(body)
+      objectsToUpdate.push({
         mesh: dominoe,
         body
       })
@@ -289,15 +290,15 @@ export default {
       this.stats.begin()
       // Update controls
       this.controls.update()
-      this.world.fixedStep()
+      world.fixedStep()
       this.cannonDebugger.update()
-      this.objectsToUpdate.forEach((object) => {
+      objectsToUpdate.forEach((object) => {
         object.mesh.position.copy(object.body.position)
         object.mesh.quaternion.copy(object.body.quaternion)
       })
 
       // Render
-      this.renderer.render(this.scene, this.camera)
+      this.renderer.render(scene, this.camera)
 
       this.stats.end()
       // Call tick again on the next frame

@@ -5,6 +5,7 @@
       :data="finalData"
       :title="titleSetting"
       :settings="settings"
+      :mark-line="markLine"
     />
   </div>
 </template>
@@ -50,6 +51,13 @@ export default {
       default: () => {
         return []
       }
+    },
+    // 辅助线设置条件
+    markLineSettings: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {
@@ -60,6 +68,41 @@ export default {
       },
       chartSettings: {},
       finalData: {},
+      markLine: {
+        symbol: 'none',
+        data: [
+          {
+            yAxis: 300,
+            label: {
+              show: 'true',
+              position: 'insideStartTop',
+              formatter: 'S线',
+              color: 'green'
+              // fontSize: 20
+            },
+            lineStyle: {
+              type: 'solid',
+              color: 'green'
+              // width: 5
+            }
+          },
+          {
+            yAxis: 400,
+            label: {
+              show: 'true',
+              position: 'insideStartTop',
+              formatter: '预警',
+              color: 'red'
+              // fontSize: 20
+            },
+            lineStyle: {
+              type: 'dot',
+              color: 'red'
+              // width: 5
+            }
+          }
+        ]
+      },
       compareMap: {
         '>': (name, value) => {
           return `e['${name}'] > ${value}`
@@ -79,7 +122,12 @@ export default {
         '>=': (name, value) => {
           return `e['${name}'] >=  ${value}`
         }
-      }
+      },
+      markLineTypeMap: new Map([
+        [1, 'solid'],
+        [2, 'dashed'],
+        [3, 'dotted']
+      ])
     }
   },
   computed: {
@@ -105,6 +153,7 @@ export default {
         console.log(newVal)
         switch (newVal) {
           case 'stackLine':
+            console.log('堆叠折线了')
             this.chartSettings = {
               area: true,
               stack: { 堆叠: [...this.selectedQuotasCopy] }
@@ -136,7 +185,7 @@ export default {
         if (this.vType === 'stackLine') {
           this.chartSettings = {
             area: true,
-            stack: { 堆叠: [...this.selectedQuotasCopy] }
+            stack: { 堆叠: [...this.selectedQuotasCopy.map((e) => e.name)] }
           }
         }
 
@@ -167,6 +216,11 @@ export default {
         )
       },
       deep: true
+    },
+    markLineSettings: {
+      handler(newVal) {
+        this.markLine = this.generateMarkLine(newVal)
+      }
     }
   },
 
@@ -179,6 +233,26 @@ export default {
   },
 
   methods: {
+    generateMarkLine(arr) {
+      console.log(arr)
+      const obj = {}
+      obj.data = arr.map((item) => {
+        return {
+          yAxis: item.value,
+          label: {
+            show: 'true',
+            position: 'insideStartTop',
+            formatter: `${item.text}:${item.value}`,
+            color: item.color
+          },
+          lineStyle: {
+            type: this.markLineTypeMap.get(item.type),
+            color: item.color
+          }
+        }
+      })
+      return obj
+    },
     handleDimensSort(vData, sortDimens, selectedDimensions) {
       console.log('排序map', sortDimens)
       const orders = []
