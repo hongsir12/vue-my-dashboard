@@ -50,6 +50,13 @@ export default {
       default: () => {
         return []
       }
+    },
+    // 辅助线设置条件
+    markLineSettings: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {
@@ -79,7 +86,12 @@ export default {
         '>=': (name, value) => {
           return `e['${name}'] >=  ${value}`
         }
-      }
+      },
+      markLineTypeMap: new Map([
+        [1, 'solid'],
+        [2, 'dashed'],
+        [3, 'dotted']
+      ])
     }
   },
   computed: {
@@ -165,6 +177,11 @@ export default {
         )
       },
       deep: true
+    },
+    markLineSettings: {
+      handler(newVal) {
+        this.markLine = this.generateMarkLine(newVal)
+      }
     }
   },
 
@@ -177,6 +194,25 @@ export default {
   },
 
   methods: {
+    generateMarkLine(arr) {
+      const obj = {}
+      obj.data = arr.map((item) => {
+        return {
+          yAxis: item.value,
+          label: {
+            show: 'true',
+            position: 'insideStartTop',
+            formatter: `${item.text}:${item.value}`,
+            color: item.color
+          },
+          lineStyle: {
+            type: this.markLineTypeMap.get(item.type),
+            color: item.color
+          }
+        }
+      })
+      return obj
+    },
     handleDimensSort(vData, sortDimens, selectedDimensions) {
       console.log('排序map', sortDimens)
       const orders = []

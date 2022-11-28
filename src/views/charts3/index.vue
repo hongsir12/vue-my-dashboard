@@ -22,6 +22,7 @@
           :sort-dimens="currentViewDetail.sortDimens"
           :filter-criteria="currentViewDetail.filterCriteria"
           :mark-line-settings="currentViewDetail.markLine"
+          :datazoom="currentViewDetail.datazoom"
         />
       </div>
       <div class="tools-window-main">
@@ -39,6 +40,7 @@
           @getDimensionsAndQuotas="getSelectedDimensionsAndQuotas"
           @getCurrentFilterName="getCurrentFilterName"
           @checkFilterFields="checkFilterFields"
+          @getDataZoom="getDataZoom"
         />
       </div>
     </div>
@@ -363,7 +365,8 @@ export default {
         quotaFilterCriteria: [],
         // 过滤条件
         filterCriteria: [],
-        markLine: []
+        markLine: [],
+        datazoom: { show: false }
       }
     },
     changeShowView(viewId) {
@@ -447,6 +450,10 @@ export default {
     // 获取markline设置
     getMarkLineArr(val) {
       this.currentViewDetail.markLine = val
+    },
+    // 获取缩略条datazoom设置
+    getDataZoom(val) {
+      this.currentViewDetail.datazoom = { ...val }
     },
     showDialog(dialog) {
       this[dialog].visible = true

@@ -6,6 +6,7 @@
       :title="titleSetting"
       :settings="settings"
       :mark-line="markLine"
+      :data-zoom="dataZoom"
     />
   </div>
 </template>
@@ -58,6 +59,13 @@ export default {
       default: () => {
         return []
       }
+    },
+    // datazoom设置
+    datazoom: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
   data() {
@@ -70,39 +78,9 @@ export default {
       finalData: {},
       markLine: {
         symbol: 'none',
-        data: [
-          {
-            yAxis: 300,
-            label: {
-              show: 'true',
-              position: 'insideStartTop',
-              formatter: 'S线',
-              color: 'green'
-              // fontSize: 20
-            },
-            lineStyle: {
-              type: 'solid',
-              color: 'green'
-              // width: 5
-            }
-          },
-          {
-            yAxis: 400,
-            label: {
-              show: 'true',
-              position: 'insideStartTop',
-              formatter: '预警',
-              color: 'red'
-              // fontSize: 20
-            },
-            lineStyle: {
-              type: 'dot',
-              color: 'red'
-              // width: 5
-            }
-          }
-        ]
+        data: []
       },
+      dataZoom: null,
       compareMap: {
         '>': (name, value) => {
           return `e['${name}'] > ${value}`
@@ -221,6 +199,11 @@ export default {
       handler(newVal) {
         this.markLine = this.generateMarkLine(newVal)
       }
+    },
+    datazoom: {
+      handler(newVal) {
+        this.dataZoom = this.generateDataZoom(newVal)
+      }
     }
   },
 
@@ -234,7 +217,6 @@ export default {
 
   methods: {
     generateMarkLine(arr) {
-      console.log(arr)
       const obj = {}
       obj.data = arr.map((item) => {
         return {
@@ -252,6 +234,30 @@ export default {
         }
       })
       return obj
+    },
+    generateDataZoom(obj) {
+      if (!obj.show) {
+        return null
+      }
+      const res = {
+        type: 'slider', // 滑动条
+        show: obj.show, // 开启
+        xAxisIndex: [0],
+        // left: '93%', // 滑动条位置
+        start: obj.range[0], // 初始化时，滑动条宽度开始标度
+        end: obj.range[1], // 初始化时，滑动条宽度结束标度
+        bottom: 0,
+        dataBackground: {
+          areaStyle: {
+            color: obj.bgColor
+          }
+        },
+        fillerColor: obj.rangeColor,
+        textStyle: {
+          color: obj.fontColor
+        }
+      }
+      return res
     },
     handleDimensSort(vData, sortDimens, selectedDimensions) {
       console.log('排序map', sortDimens)

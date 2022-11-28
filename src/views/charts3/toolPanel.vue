@@ -189,8 +189,49 @@
         <el-button>样式</el-button>
       </el-tab-pane>
       <el-tab-pane label="高级" name="third">
+        <span>高级设置</span>
+        <el-collapse v-model="funcSetCollapse">
+          <el-collapse-item title="功能设置" name="1">
+            <el-form
+              ref="dataZoomForm"
+              :model="dataZoomForm"
+              label-width="80px"
+            >
+              <el-row>
+                <el-form-item label="缩略轴">
+                  <el-switch
+                    v-model="dataZoomForm.show"
+                    @change="showDataZoom"
+                  />
+                </el-form-item>
+              </el-row>
+              <el-row>
+                <el-col :span="22">
+                  <el-form-item label="默认范围">
+                    <el-slider v-model="dataZoomForm.range" range  @change="showDataZoom" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-form-item label="背景">
+                  <el-color-picker v-model="dataZoomForm.bgColor"  @change="showDataZoom" />
+                </el-form-item>
+              </el-row>
+              <el-row>
+                <el-form-item label="选中背景">
+                  <el-color-picker v-model="dataZoomForm.rangeColor"  @change="showDataZoom" />
+                </el-form-item>
+              </el-row>
+              <el-row>
+                <el-form-item label="字体颜色">
+                  <el-color-picker v-model="dataZoomForm.fontColor"  @change="showDataZoom"/>
+                </el-form-item>
+              </el-row>
+            </el-form>
+          </el-collapse-item>
+        </el-collapse>
         <span>分析预警</span>
-        <el-collapse v-model="activeCollapseNames">
+        <el-collapse v-model="analyseCollapse">
           <el-collapse-item title="辅助线" name="1">
             <div>
               <el-button icon="el-icon-edit" circle @click="showAddMarkLine" />
@@ -260,7 +301,15 @@ export default {
       selectedDimensionsCopy: [], // 显示的维度
       selectedQuotasCopy: [], // 显示的指标
       filterFields: [], // 过滤的字段
-      activeCollapseNames: ['1']
+      analyseCollapse: ['1'],
+      funcSetCollapse: ['1'],
+      dataZoomForm: {
+        show: false,
+        range: [0, 40],
+        bgColor: '#fc0000',
+        rangeColor: '#00ff00',
+        fontColor: '#0000ff'
+      }
     }
   },
   watch: {
@@ -420,6 +469,9 @@ export default {
     // 显示预警线添加弹框
     showAddMarkLine() {
       this.$parent.showDialog('addMarkLine')
+    },
+    showDataZoom(val) {
+      this.$emit('getDataZoom', this.dataZoomForm)
     },
     // 传值父组件显示的维度跟指标
     changeDimensionsAndQuotas(val) {

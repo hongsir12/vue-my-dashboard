@@ -6,6 +6,7 @@
 
 <script>
 import * as THREE from 'three'
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls.js'
 import { initStats } from '../utils/stats'
 import baseSetting from '../utils/utils'
 
@@ -29,6 +30,7 @@ export default {
   },
 
   mounted() {
+    this.clock = new THREE.Clock()
     this.init()
     textures = this.loadTextures()
     this.createObjects()
@@ -46,11 +48,16 @@ export default {
       canvas = this.$refs.canvas
       sizes = baseSetting.initSizes(this)
       camera = baseSetting.initCamera(sizes, { fov: 75, near: 0.1, far: 10000 })
-      camera.position.set(0, 0, 700)
-      controls = baseSetting.initControls({
-        camera,
-        canvas
-      })
+      camera.position.set(0, 20, 250)
+      // controls = baseSetting.initControls({
+      //   camera,
+      //   canvas
+      // })
+      // 第一人称控制器
+      controls = new FirstPersonControls(camera, canvas)
+      controls.lookSpeed = 0.1
+      controls.movementSpeed = 100
+      controls.lookVertical = true
       renderer = baseSetting.initRenderer({
         canvas,
         sizes
@@ -347,7 +354,7 @@ export default {
     setDebug() {},
     tick() {
       this.stats.begin()
-      controls.update()
+      controls.update(this.clock.getDelta())
       renderer.render(scene, camera)
       this.stats.end()
       window.requestAnimationFrame(this.tick)
