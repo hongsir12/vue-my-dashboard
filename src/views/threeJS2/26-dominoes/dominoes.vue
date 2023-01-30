@@ -68,6 +68,7 @@ export default {
     })
     this.controls.zoomSpeed = 0.3
     this.controls.target.set(5, 10, 0)
+    // 处理对象
     this.handleObjects()
     // Renderer
     this.renderer = baseSetting.initRenderer({
@@ -130,6 +131,7 @@ export default {
   },
 
   methods: {
+    // 设置场景对象
     handleObjects() {
       // 地板材质
       const materialPlane = new THREE.MeshStandardMaterial({
@@ -167,6 +169,7 @@ export default {
       const ambientLight = new THREE.AmbientLight(new THREE.Color('#ffffff'), 3)
       scene.add(ambientLight)
     },
+    // 设置物理世界
     handlePhysics() {
       const world = new CANNON.World()
       world.gravity.set(0, -10, 0)
@@ -202,6 +205,7 @@ export default {
       world.addBody(floorBody)
       return world
     },
+    // 添加一个多米诺骨牌
     addOneDominoe(x, y, z, color = { r: 255, g: 255, b: 255 }) {
       const material = new THREE.MeshStandardMaterial({
         metalness: 0.3,
@@ -252,20 +256,25 @@ export default {
         )
       }
     },
+    // 获取图片颜色
     getMinifyPicColor() {
       return new Promise((res) => {
         const canvas = document.querySelector('#picCanvas')
         const minify2DArr = []
         if (canvas) {
+          // 获取画布二维渲染上下文
           const ctx = canvas.getContext('2d')
           if (ctx) {
             const img = new Image()
             img.src =
               'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAIAAAA7N+mxAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFKADAAQAAAABAAAACgAAAABtDdkeAAAAb0lEQVQoFWOsmDCHgVzAxOHnB9eLzIYL4mEw4ZGDSEFMxGouYc14TGcBymGaChH5sWkTpk64YqAsSDMaAEpDtMEZcAXIIkA2SDPcBiAfog7OgGvDysBiM7JxWPXABbFoBjoEbjPcURANaFKMlCQSAETxJvV/OkBjAAAAAElFTkSuQmCC'
-            console.log(img)
+            // console.log(img)
             img.addEventListener('load', () => {
+              // 在画布上绘制图片图像
               ctx.drawImage(img, 0, 0, 20, 10, 0, 0, 20, 10)
+              // 获取画布指定区域像素数据
               const imageData = ctx.getImageData(0, 0, 20, 10)
+              // 获取包含rgba顺序数据的一维数组
               const pixels = imageData.data
               console.log(pixels)
               for (let i = 0; i < pixels.length; i += 4) {
@@ -278,6 +287,7 @@ export default {
               ctx.putImageData(imageData, 0, 0)
               console.log(minify2DArr)
               const newArr = []
+              // 20个为一组
               while (minify2DArr.length) newArr.push(minify2DArr.splice(0, 20))
               console.log(newArr)
               res(newArr)
